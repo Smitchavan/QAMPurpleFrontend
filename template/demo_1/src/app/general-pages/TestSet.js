@@ -1,6 +1,134 @@
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
 export default class TestSet extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      testcasedata: [],
+      testbyid: "",
+      testsetdata: [],
+      AlltestsetData: [],
+      checked: false,
+      testsetForm: {
+        testsetname: "",
+        testcases: [],
+        assigntoproject: "",
+      },
+    };
+  }
+  componentDidMount() {
+    this.loadtestcases();
+    this.GetAlltestSet();
+  }
+  AddTest = async (test) => {
+    //console.log("HIi Boy", test);
+    let response = await axios.get(
+      "http://localhost:5000/api/testcase/gettestbyid",
+      {
+        params: { id: test },
+      }
+    );
+
+    this.setState({ testbyid: response.data });
+
+    this.AddtoTestset(response.data);
+  };
+  AddtoTestset = async (data) => {
+    // console.log(this.state.testsetdata._id);
+    let testsetid = this.state.testsetdata._id;
+    // console.log(data._id);
+    if (this.state.testsetdata._id === undefined) {
+      toast.error("Please !!!! set Testset name first");
+    } else {
+      try {
+        let Result = await axios.post(
+          "http://localhost:5000/api/testset/inserttestsbyid",
+          [{ id: testsetid }, { testcaseinfo: data }]
+        );
+        console.log(Result);
+        // console.log(data.testname);
+        toast.success(`test case "${data.testname}" added successfully`);
+        this.GetAlltestSet();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+  handlechange = async (e) => {
+    e.preventDefault();
+    const { name, value } = e.target;
+    console.log("name", name, "value", value);
+    this.setState({
+      testsetForm: {
+        ...this.state.testsetForm,
+        [name]: value,
+      },
+    });
+  };
+  GetAlltestSet = () => {
+    axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
+      // console.log(res.data);
+      this.setState({ AlltestsetData: res.data });
+    });
+  };
+
+  loadtestcases = () => {
+    axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
+      this.setState({ testcasedata: res.data });
+      // console.log(res.data);
+    });
+  };
+  GettestSet = async (testsetid) => {
+    // console.log(testsetid);
+
+    let response = await axios.get(
+      "http://localhost:5000/api/testset/gettestsetbyid",
+      {
+        params: { id: testsetid },
+      }
+    );
+    //console.log(response.data);
+    await this.setState({
+      testsetdata: response.data,
+    });
+  };
+
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.checked === true) {
+      let values = this.state.testsetForm;
+      if (this.state.testsetForm.testsetname === "") {
+        toast.error("please fill testsetname");
+      }
+
+      try {
+        let result = await axios.post(
+          "http://localhost:5000/api/testset",
+          values
+        );
+        // console.log(result);
+        if (result.status === 200) {
+          toast.success("Testset added successfully");
+        }
+        await this.setState({
+          testsetForm: {
+            testsetname: "",
+            assigntoproject: "",
+          },
+        });
+
+        this.GettestSet(result.data._id);
+      } catch (error) {
+        console.log(error);
+        toast.error(error);
+      }
+    } else {
+      toast.error("please accept the condition");
+    }
+  };
   render() {
     return (
       <div>
@@ -23,7 +151,13 @@ export default class TestSet extends Component {
           <div className="col-md-6 grid-margin stretch-card">
             <div className="card">
               <div className="card-body">
-                <h4 className="card-title">TestSet Form</h4>
+                <i className="mdi mdi-compass icon-lg text-success">
+                  {" "}
+                  {this.state.testsetdata.testsetname}
+                </i>
+                <h4 className="card-title" style={{ marginTop: "50px" }}>
+                  TestSet Form
+                </h4>{" "}
                 <p className="card-description"> Set Testset Info </p>
                 <form className="forms-sample">
                   <Form.Group className="row">
@@ -31,30 +165,18 @@ export default class TestSet extends Component {
                       htmlFor="exampleInputUsername2"
                       className="col-sm-3 col-form-label"
                     >
-                      Email
+                      Testset name
                     </label>
                     <div className="col-sm-9">
                       <Form.Control
                         type="text"
                         className="form-control"
-                        id="exampleInputUsername2"
-                        placeholder="Username"
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group className="row">
-                    <label
-                      htmlFor="exampleInputEmail2"
-                      className="col-sm-3 col-form-label"
-                    >
-                      Email
-                    </label>
-                    <div className="col-sm-9">
-                      <Form.Control
-                        type="email"
-                        className="form-control"
-                        id="exampleInputEmail2"
-                        placeholder="Email"
+                        id="testset"
+                        placeholder="Testset name"
+                        name="testsetname"
+                        value={this.state.testname}
+                        onChange={this.handlechange}
+                        autoComplete="off"
                       />
                     </div>
                   </Form.Group>
@@ -63,67 +185,46 @@ export default class TestSet extends Component {
                       htmlFor="exampleInputMobile"
                       className="col-sm-3 col-form-label"
                     >
-                      Mobile
+                      Assign To Project
                     </label>
                     <div className="col-sm-9">
                       <Form.Control
                         type="text"
                         className="form-control"
-                        id="exampleInputMobile"
-                        placeholder="Mobile number"
+                        id="assign"
+                        placeholder="Project name"
+                        name="assigntoproject"
+                        value={this.state.assigntoproject}
+                        onChange={this.handlechange}
+                        autoComplete="off"
                       />
                     </div>
                   </Form.Group>
-                  <Form.Group className="row">
-                    <label
-                      htmlFor="exampleInputPassword2"
-                      className="col-sm-3 col-form-label"
-                    >
-                      Password
-                    </label>
-                    <div className="col-sm-9">
-                      <Form.Control
-                        type="password"
-                        className="form-control"
-                        id="exampleInputPassword2"
-                        placeholder="Password"
-                      />
-                    </div>
-                  </Form.Group>
-                  <Form.Group className="row">
-                    <label
-                      htmlFor="exampleInputConfirmPassword2"
-                      className="col-sm-3 col-form-label"
-                    >
-                      Re Password
-                    </label>
-                    <div className="col-sm-9">
-                      <Form.Control
-                        type="password"
-                        className="form-control"
-                        id="exampleInputConfirmPassword2"
-                        placeholder="Password"
-                      />
-                    </div>
-                  </Form.Group>
+
                   <div className="form-check">
                     <label className="form-check-label text-muted">
-                      <input type="checkbox" className="form-check-input" />
-                      <i className="input-helper"></i>
-                      Remember me
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        onChange={() => this.setState({ checked: true })}
+                      />
+                      <i className="input-helper"></i>I accept to create this
+                      testset.
                     </label>
                   </div>
                   <button
                     type="submit"
                     className="btn btn-gradient-primary mr-2"
+                    onClick={this.handleSubmit}
                   >
                     Submit
                   </button>
-                  <button className="btn btn-light">Cancel</button>
+                  {/* <button className="btn btn-light">Cancel</button> */}
                 </form>
-              </div>
+              </div>{" "}
             </div>
           </div>
+
           <div className="col-lg-6 grid-margin stretch-card">
             <div className="card">
               <div className="card-body">
@@ -136,6 +237,57 @@ export default class TestSet extends Component {
                   <table className="table table-hover">
                     <thead>
                       <tr>
+                        <th>Testname</th>
+                        <th>Level</th>
+                        <th>Assigned</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    {this.state.testcasedata.map((val) => (
+                      <tbody
+                        key={val._id}
+                        onClick={() => {
+                          this.AddTest(val._id);
+                        }}
+                      >
+                        <tr>
+                          <td>{val.testname}</td>
+                          <td>{val.testlevel}</td>
+                          <td className="text-danger">
+                            {/* 28.76% <i className="mdi mdi-arrow-down"></i> */}
+                            {val.assigntoproject}
+                          </td>
+                          <td>
+                            {val.status === "pending" ? (
+                              <label className="badge badge-danger">
+                                Pending
+                              </label>
+                            ) : val.status === "in progress" ? (
+                              <label className="badge badge-warning">
+                                In progress
+                              </label>
+                            ) : val.status === "started" ? (
+                              <label className="badge badge-info">
+                                Started
+                              </label>
+                            ) : val.status === "Fixed" ? (
+                              <label className="badge badge-success">
+                                Fixed
+                              </label>
+                            ) : (
+                              ""
+                            )}
+
+                            {/* <label className="badge badge-info">Fixed</label>
+                            <label className="badge badge-success"></label> */}
+                          </td>
+                        </tr>
+                      </tbody>
+                    ))}
+                  </table>
+                  {/* <table className="table table-hover">
+                    <thead>
+                      <tr>
                         <th>User</th>
                         <th>Product</th>
                         <th>Sale</th>
@@ -143,6 +295,29 @@ export default class TestSet extends Component {
                       </tr>
                     </thead>
                     <tbody>
+                      <tr>
+                        <td>Jacob</td>
+                        <td>Photoshop</td>
+                        <td className="text-danger">
+                          28.76% <i className="mdi mdi-arrow-down"></i>
+                        </td>
+                        <td>
+                          <label className="badge badge-danger">Pending</label>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table> */}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+/* <tbody>
                       <tr>
                         <td>Jacob</td>
                         <td>Photoshop</td>
@@ -204,14 +379,4 @@ export default class TestSet extends Component {
                           </label>
                         </td>
                       </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
+                    </tbody> */

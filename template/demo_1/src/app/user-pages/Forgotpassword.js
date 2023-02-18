@@ -2,58 +2,36 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
 import { Formik } from "formik";
 import toast, { Toaster } from "react-hot-toast";
-export class Login extends Component {
+export default class Forgotpassword extends Component {
   constructor(props) {
     super(props);
-
     this.initialValues = { email: "", password: "" };
-    this.state = {
-      user: null,
-      isLoggedIn: false,
-    };
   }
-  componentDidMount() {
-    localStorage.removeItem("token");
-  }
-  postlogin = async (values) => {
-    // console.log(values);
-    try {
-      let result = await axios.post("http://localhost:5000/api/login", values);
-      // console.log("Result->", result);
-      // console.log("Result->", result.data);
+  componentDidMount() {}
+  forgotPassword = (values) => {
+    console.log(values);
+    // let result = await axios.post("http://localhost:5000/api/login", values);
 
-      if (result.data.token) {
-        localStorage.setItem("token", JSON.stringify(result.data.token));
-      }
-
-      if (result.status === 200) {
-        this.setState({
-          user: result.data.user,
-          isLoggedIn: true,
-        });
-        //console.log(result.data.msg);
-        // toast(result.data.msg);
-      }
-    } catch (error) {
-      toast.error(error.response.data);
-    }
+    // console.log(result.data);
+    axios
+      .post("http://localhost:5000/api/forgotPassword", values)
+      .then((res) => toast.success(res.data));
   };
   validate = (values) => {
     const errors = {};
     if (!values.email) {
-      errors.email = "Required";
+      errors.email = "Email is Required";
     }
     if (!values.password) {
-      errors.password = "Required";
+      errors.password = "Password is Required";
     }
 
     return errors;
   };
   handleSubmit = (values, setSubmitting) => {
-    this.postlogin(values);
+    this.forgotPassword(values);
     setTimeout(() => {
       setSubmitting(false);
     }, 400);
@@ -61,9 +39,7 @@ export class Login extends Component {
   render() {
     return (
       <div>
-        {this.state.user && (
-          <Redirect to="/home" replace={this.state.isLoggedIn} />
-        )}
+        {" "}
         <Toaster />
         <div className="d-flex align-items-center auth px-0">
           <div className="row w-100 mx-0">
@@ -94,7 +70,7 @@ export class Login extends Component {
                     isSubmitting,
                     /* and other goodies */
                   }) => (
-                    <Form className="pt-3" onSubmit={handleSubmit}>
+                    <Form onSubmit={handleSubmit} className="pt-3">
                       <Form.Group className="d-flex search-field">
                         <Form.Control
                           type="email"
@@ -106,12 +82,11 @@ export class Login extends Component {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           value={values.email}
-                        />{" "}
+                        />
                         <span>
                           {errors.email && touched.email && errors.email}
                         </span>
                       </Form.Group>
-
                       <Form.Group className="d-flex search-field">
                         <Form.Control
                           type="password"
@@ -123,23 +98,21 @@ export class Login extends Component {
                           onChange={handleChange}
                           onBlur={handleBlur}
                           value={values.password}
-                        />
+                        />{" "}
                         <span>
                           {errors.password &&
                             touched.password &&
                             errors.password}
                         </span>
                       </Form.Group>
-
                       <div className="mt-3">
                         <button
                           className="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                          to="/dashboard"
                           type="submit"
                           value="Submit"
                           disabled={isSubmitting}
                         >
-                          Log In
+                          Change Password
                         </button>
                       </div>
                       <div className="my-2 d-flex justify-content-between align-items-center">
@@ -151,12 +124,6 @@ export class Login extends Component {
                             />
                           </label>
                         </div>
-                        <Link
-                          to="/forgotpassword"
-                          className="auth-link text-black"
-                        >
-                          Forgot Password?
-                        </Link>
                       </div>
                       <div className="mb-2">
                         <button
@@ -168,9 +135,9 @@ export class Login extends Component {
                         </button>
                       </div>
                       <div className="text-center mt-4 font-weight-light">
-                        Don't have an account?{" "}
-                        <Link to="/register" className="text-primary">
-                          Create
+                        Access to Login?{" "}
+                        <Link to="/login" className="text-primary">
+                          Click here!
                         </Link>
                       </div>
                     </Form>
@@ -184,5 +151,3 @@ export class Login extends Component {
     );
   }
 }
-
-export default Login;

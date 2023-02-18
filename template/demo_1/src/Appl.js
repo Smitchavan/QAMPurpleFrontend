@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Login from "./app/user-pages/Login";
 import Register from "./app/user-pages/Register";
-import Error404 from "./app/error-pages/Error404";
+//import Error404 from "./app/error-pages/Error404";
 import LockScreen from "./app/user-pages/Lockscreen";
 import Navbar from "./app/shared/Navbar";
 import TestSet from "./app/general-pages/TestSet";
@@ -9,41 +9,65 @@ import TestPage from "./app/general-pages/TestPage";
 import ProjectPage from "./app/general-pages/ProjectPage";
 import { Switch, Route } from "react-router-dom";
 import "./app/App.scss";
+import Forgotpassword from "./app/user-pages/Forgotpassword";
+import Testview from "./app/general-pages/viewpages/Testview";
+import Testsetview from "./app/general-pages/viewpages/Testsetview";
 
 class Appl extends Component {
   render() {
     return (
       <Switch>
-        <div className="content-wrapper">
-          <Route exact path="/">
+        <Route exact path="/">
+          <div className="content-wrapper">
             <LockScreen />
-          </Route>
-          <Route path="/register">
+          </div>
+        </Route>
+        <Route exact path="/register">
+          <div className="content-wrapper">
             <Register />
-          </Route>
-          <Route path="/login">
+          </div>
+        </Route>
+        <Route exact path="/login">
+          <div className="content-wrapper">
             <Login />
-          </Route>
-          <Route path="/404" component={Error404} />
-          <Route path="/home">
-            <Navbar />
-          </Route>
-          <Route path="/testcase">
+          </div>
+        </Route>
+        {/* <Route path="*" exact={true} component={Error404} /> */}
+        <Route exact path="/home">
+          <Navbar />
+        </Route>
+        <Route exact path="/testcase">
+          <div className="content-wrapper">
             <Navbar />
             <TestPage />
-          </Route>
+          </div>
+        </Route>
 
-          <Route path="/testset">
+        <Route exact path="/testset">
+          <div className="content-wrapper">
             <Navbar />
             <TestSet />
-          </Route>
-          <Route path="/projectpage">
-            <Navbar />
-            <ProjectPage />
-          </Route>
-          <Route path="/viewcases"></Route>
-          <Route path="/issues"></Route>
-        </div>
+          </div>
+        </Route>
+        <Route path="/projectpage">
+          <Navbar />
+          <ProjectPage />
+        </Route>
+        <Route path="/forgotpassword">
+          <div className="content-wrapper">
+            <Forgotpassword />
+          </div>
+        </Route>
+        <Route path="/viewcases">
+          <div className="content-wrapper">
+            <Testview />
+          </div>
+        </Route>
+        <Route path="/viewtestsets">
+          <div className="content-wrapper">
+            <Testsetview />
+          </div>
+        </Route>
       </Switch>
     );
   }
