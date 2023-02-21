@@ -90,7 +90,7 @@ export default class TestSet extends Component {
 
   loadtestcases = () => {
     axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
-      this.setState({ testcasedata: res.data });
+      this.setState({ testcasedata: res.data.Gettest });
       // console.log(res.data);
     });
   };

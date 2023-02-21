@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 // import { ProgressBar } from "react-bootstrap";
 import axios from "axios";
+import Pagination from "../../pagination/Pagination";
 import { Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
@@ -18,6 +19,11 @@ export default class Testsetview extends Component {
       setModalT: false,
       setModalTh: false,
 
+      currentPage: 1,
+      itemsPerPage: 5,
+      totalItems: 0,
+      pageCount: 0,
+
       testcase: [],
       testsetupdate: [],
 
@@ -34,6 +40,15 @@ export default class Testsetview extends Component {
   refreshPage() {
     window.location.reload(false);
   }
+  handlePageChange = (data) => {
+    //here any param by default returns object with selected as key and page no. as value
+
+    this.setState({ currentPage: data.selected + 1 }, this.GetAlltestSet);
+    // console.log(this.fetchData)
+  };
+  handleMPageChange = (data) => {
+    this.setState({ currentPage: data.selected + 1 }, this.loadtestcases);
+  };
   handlesearch = async (e) => {
     e.preventDefault();
     await this.setState({ query: e.target.value });
@@ -49,23 +64,55 @@ export default class Testsetview extends Component {
     await this.setState({ setModalT: true, testsetupdate: data });
   };
   loadtestcases = () => {
-    axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
-      // console.log(res.data);
-      this.setState({ testcasedata: res.data });
-    });
+    try {
+      // axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
+      //   // console.log(res.data);
+
+      //   this.setState({ testcasedata: res.data.Gettest });
+      // });
+      const itemsPerPage = this.state.itemsPerPage;
+      axios
+        .get("http://localhost:5000/api/testcase/gettests", {
+          params: {
+            page: this.state.currentPage,
+            limit: itemsPerPage,
+          },
+        })
+        .then((res) => {
+          let data = res.data.Gettest;
+          this.setState({ testcasedata: data });
+
+          this.setState({ data });
+          this.setState({ totalItems: res.data.counter });
+          this.setState({
+            pageCount: Math.ceil(
+              this.state.totalItems / this.state.itemsPerPage
+            ),
+          });
+        });
+    } catch (error) {}
   };
-  // CAllAPI = () => {
-  //   axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
-  //     console.log("smit", res.data);
-  //     // this.setState({ testcase: res.data.testcase });
-  //   });
-  // };
+
   GetAlltestSet = async () => {
     try {
+      const itemsPerPage = this.state.itemsPerPage;
       let res = await axios.get(
-        "http://localhost:5000/api/testset/gettestsets"
+        "http://localhost:5000/api/testset/gettestsets",
+        {
+          params: {
+            page: this.state.currentPage,
+            limit: itemsPerPage,
+          },
+        }
       );
-      await this.setState({ AlltestsetData: res.data });
+      let data = res.data.Result;
+      await this.setState({ AlltestsetData: data });
+      this.setState({ data });
+      this.setState({ totalItems: res.data.counter });
+      this.setState({
+        pageCount: Math.ceil(this.state.totalItems / this.state.itemsPerPage),
+      });
+      // this.setState({ testcasedata: res.data });
       // await this.setState({ testcase: res });
       // console.log("latest console data", this.state.AlltestsetData);
     } catch (error) {
@@ -347,6 +394,11 @@ export default class Testsetview extends Component {
               </div>
             </div>
           </div>
+          <Pagination
+            currentPage={this.state.currentPage}
+            handlePageChange={this.handlePageChange}
+            pageCount={this.state.pageCount}
+          />
           <Link to="home">
             <i
               className="mdi mdi-home-variant"
@@ -574,6 +626,11 @@ export default class Testsetview extends Component {
                   </div>
                 </div>
               </div>
+              <Pagination
+                currentPage={this.state.currentPage}
+                handlePageChange={this.handleMPageChange}
+                pageCount={this.state.pageCount}
+              />
             </Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>

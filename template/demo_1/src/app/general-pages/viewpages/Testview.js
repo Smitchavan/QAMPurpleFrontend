@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { Modal } from "react-bootstrap";
 import { Form } from "react-bootstrap";
+import Pagination from "../../pagination/Pagination";
 export default class Testview extends Component {
   constructor(props) {
     super(props);
@@ -11,6 +12,10 @@ export default class Testview extends Component {
       testcasedata: [],
       setModal: false,
       testcaseid: "",
+      currentPage: 1,
+      itemsPerPage: 5,
+      totalItems: 0,
+      pageCount: 0,
       formdata: {
         testname: "",
         testinfo: "",
@@ -126,10 +131,36 @@ export default class Testview extends Component {
     });
   };
   loadtestcases = () => {
-    axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
-      this.setState({ testcasedata: res.data });
-      console.log(res.data);
-    });
+    try {
+      const itemsPerPage = this.state.itemsPerPage;
+      axios
+        .get("http://localhost:5000/api/testcase/gettests", {
+          params: {
+            page: this.state.currentPage,
+            limit: itemsPerPage,
+          },
+        })
+        .then((res) => {
+          let data = res.data.Gettest;
+          this.setState({ testcasedata: data });
+
+          this.setState({ data });
+          this.setState({ totalItems: res.data.counter });
+          this.setState({
+            pageCount: Math.ceil(
+              this.state.totalItems / this.state.itemsPerPage
+            ),
+          });
+          console.log(res.data);
+        });
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+  handlePageChange = (data) => {
+    //here any param by default returns object with selected as key and page no. as value
+    this.setState({ currentPage: data.selected + 1 }, this.loadtestcases);
+    // console.log(this.fetchData)
   };
   render() {
     return (
@@ -234,6 +265,7 @@ export default class Testview extends Component {
               </div>
             </div>
           </div>
+
           <Link to="home">
             <i
               className="mdi mdi-home-variant"
@@ -244,6 +276,11 @@ export default class Testview extends Component {
               }}
             ></i>
           </Link>
+          <Pagination
+            currentPage={this.state.currentPage}
+            handlePageChange={this.handlePageChange}
+            pageCount={this.state.pageCount}
+          />
         </div>
         <Modal
           show={this.state.setModal}
