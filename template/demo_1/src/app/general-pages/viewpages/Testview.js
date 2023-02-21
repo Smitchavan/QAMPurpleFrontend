@@ -41,6 +41,17 @@ export default class Testview extends Component {
   refreshPage() {
     window.location.reload(false);
   }
+  HandleTestpageSearch = async (e) => {
+    e.preventDefault();
+    await this.setState({ query: e.target.value });
+    // submit search query to Node.js app
+    let result = await axios.get(
+      "http://localhost:5000/api/testcase/searchtestcase?q=" + this.state.query
+    );
+
+    // console.log(result.data);
+    this.setState({ testcasedata: result.data });
+  };
   DeleteCase = async (id) => {
     this.setState((prevState) => ({
       testcasedata: prevState.testcasedata.filter((test) => test._id !== id),
@@ -124,6 +135,24 @@ export default class Testview extends Component {
     return (
       <div>
         <Toaster />
+        <Form.Group>
+          <div className="input-group">
+            <Form.Control
+              type="text"
+              className="form-control"
+              placeholder="search testcase by name or info"
+              aria-label="Recipient's username"
+              aria-describedby="basic-addon2"
+              value={this.state.query}
+              onChange={this.HandleTestpageSearch}
+            />
+            <div className="input-group-append">
+              <button className="btn btn-sm btn-gradient-primary" type="button">
+                Search
+              </button>
+            </div>
+          </div>
+        </Form.Group>
         <div className="col-lg-12 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">

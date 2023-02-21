@@ -34,6 +34,17 @@ export default class Testsetview extends Component {
   refreshPage() {
     window.location.reload(false);
   }
+  handlesearch = async (e) => {
+    e.preventDefault();
+    await this.setState({ query: e.target.value });
+    // submit search query to Node.js app
+    let result = await axios.get(
+      "http://localhost:5000/api/testcase/searchtestcase?q=" + this.state.query
+    );
+
+    // console.log(result.data);
+    this.setState({ testcasedata: result.data });
+  };
   Updatetestset = async (data) => {
     await this.setState({ setModalT: true, testsetupdate: data });
   };
@@ -189,6 +200,17 @@ export default class Testsetview extends Component {
       toast.error("Test Case does not exist,Please Refresh");
     }
   };
+  HandleTestsetSearch = async (e) => {
+    e.preventDefault();
+    await this.setState({ query: e.target.value });
+    // submit search query to Node.js app
+    let result = await axios.get(
+      "http://localhost:5000/api/testset/searchtestset?q=" + this.state.query
+    );
+
+    // console.log(result.data);
+    this.setState({ AlltestsetData: result.data });
+  };
   Deletetestset = async (id) => {
     this.setState((prevState) => ({
       AlltestsetData: prevState.AlltestsetData.filter(
@@ -229,6 +251,24 @@ export default class Testsetview extends Component {
       <div>
         {" "}
         <Toaster />
+        <Form.Group>
+          <div className="input-group">
+            <Form.Control
+              type="text"
+              className="form-control"
+              placeholder="search testcase by name or info"
+              aria-label="Recipient's username"
+              aria-describedby="basic-addon2"
+              value={this.state.query}
+              onChange={this.HandleTestsetSearch}
+            />
+            <div className="input-group-append">
+              <button className="btn btn-sm btn-gradient-primary" type="button">
+                Search
+              </button>
+            </div>
+          </div>
+        </Form.Group>
         <div className="col-lg-12 grid-margin stretch-card">
           <div className="card">
             <div className="card-body">
@@ -478,6 +518,27 @@ export default class Testsetview extends Component {
 
             <Modal.Body>
               {" "}
+              <Form.Group>
+                <div className="input-group">
+                  <Form.Control
+                    type="text"
+                    className="form-control"
+                    placeholder="search testcase by name or info"
+                    aria-label="Recipient's username"
+                    aria-describedby="basic-addon2"
+                    value={this.state.query}
+                    onChange={this.handlesearch}
+                  />
+                  <div className="input-group-append">
+                    <button
+                      className="btn btn-sm btn-gradient-primary"
+                      type="button"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </div>
+              </Form.Group>
               <div className="card">
                 <div className="card-body">
                   <div className="table-responsive">
