@@ -358,35 +358,37 @@ export default class Testsetview extends Component {
                               <td> {this.state.testcase.assigntoproject}</td>
                               {/* {console.log("p k data", this.state.testcase)} */}
                               <td>
-                                {this.state.testcase.stepArr?.map(
-                                  (val, index) => (
-                                    <div key={index}>
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "space-between",
-                                          cursor: "pointer",
-                                        }}
-                                      >
-                                        <div>{val.steps}</div>
-                                        <i
-                                          className="mdi mdi-delete"
-                                          style={{
-                                            fontSize: "20px",
-                                            cursor: "pointer",
-                                            marginLeft: "10px",
-                                          }}
-                                          onClick={() =>
-                                            this.Delstep(
-                                              this.state.testsetid,
-                                              val
-                                            )
-                                          }
-                                        ></i>
-                                      </div>
-                                    </div>
-                                  )
-                                )}
+                                {this.state.testcase.stepArr
+                                  ? this.state.testcase.stepArr.map(
+                                      (val, index) => (
+                                        <div key={index}>
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              justifyContent: "space-between",
+                                              cursor: "pointer",
+                                            }}
+                                          >
+                                            <div>{val.steps}</div>
+                                            <i
+                                              className="mdi mdi-delete"
+                                              style={{
+                                                fontSize: "20px",
+                                                cursor: "pointer",
+                                                marginLeft: "10px",
+                                              }}
+                                              onClick={() =>
+                                                this.Delstep(
+                                                  this.state.testsetid,
+                                                  val
+                                                )
+                                              }
+                                            ></i>
+                                          </div>
+                                        </div>
+                                      )
+                                    )
+                                  : null}
                               </td>
                               <td>
                                 <div>

@@ -152,27 +152,29 @@ export default class Testview extends Component {
                         <td> {val.testinfo}</td>
                         <td> {val.status} </td>
                         <td>
-                          {val.stepArr?.map((vall) => (
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                cursor: "pointer",
-                              }}
-                            >
-                              <div>{vall.steps}</div>{" "}
-                              <i
-                                className="mdi mdi-delete"
-                                style={{
-                                  fontSize: "20px",
-                                  cursor: "pointer",
-                                }}
-                                onClick={() =>
-                                  this.DeleteStep(vall._id, val._id)
-                                }
-                              ></i>
-                            </div>
-                          ))}
+                          {val.stepArr
+                            ? val.stepArr.map((vall) => (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <div>{vall.steps}</div>{" "}
+                                  <i
+                                    className="mdi mdi-delete"
+                                    style={{
+                                      fontSize: "20px",
+                                      cursor: "pointer",
+                                    }}
+                                    onClick={() =>
+                                      this.DeleteStep(vall._id, val._id)
+                                    }
+                                  ></i>
+                                </div>
+                              ))
+                            : null}
                         </td>
                         <td>{val.assigntoproject} </td>
                         <td>
