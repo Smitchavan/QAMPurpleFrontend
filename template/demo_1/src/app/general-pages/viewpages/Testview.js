@@ -10,14 +10,37 @@ export default class Testview extends Component {
     this.state = {
       testcasedata: [],
       setModal: false,
+      testcaseid: "",
+      formdata: {
+        testname: "",
+        testinfo: "",
+        status: "",
+        testlevel: "",
+        assigntoproject: "",
+      },
     };
+    this.setState = this.setState.bind(this);
   }
   componentDidMount() {
     this.loadtestcases();
   }
-  DeleteStep = () => {
-    console.log("HII");
+  DeleteStep = async (step, caseid) => {
+    console.log("HII", step, caseid);
+    let Result = await axios.post(
+      "http://localhost:5000/api/testcase/deletestep",
+      { data: { stepid: step, id: caseid } }
+    );
+    console.log(Result);
+    if (Result.data.modifiedCount === 1) {
+      toast.success("test removed successfully");
+      this.refreshPage();
+    } else {
+      toast.error("Test Case does not exist,Please Refresh");
+    }
   };
+  refreshPage() {
+    window.location.reload(false);
+  }
   DeleteCase = async (id) => {
     this.setState((prevState) => ({
       testcasedata: prevState.testcasedata.filter((test) => test._id !== id),
@@ -34,17 +57,62 @@ export default class Testview extends Component {
       toast.error("This TestSet Doesnt Exist");
     }
   };
-  handlechange = (e) => {
+  handlechange = async (e) => {
     e.preventDefault();
     // this.setState({selectedTestId: selectedId});
     const { name, value } = e.target;
     console.log("name", name, "value", value);
-    this.setState({
-      [name]: value,
+    await this.setState({
+      formdata: { ...this.state.formdata, [name]: value },
     });
+    console.log(this.state.formdata);
   };
-  OpenModal = () => {
-    this.setState({ setModal: true });
+  Onupdate = async (e) => {
+    e.preventDefault();
+    console.log(this.state.formdata);
+    let obj = this.state.formdata;
+    let id = this.state.testcaseid;
+    console.log(id);
+    let result = await axios.post(
+      "http://localhost:5000/api/testcase/updatetestwithid",
+      {
+        data: {
+          id: id,
+          data: obj,
+        },
+      }
+    );
+    if (result.data.err === "typeerror") {
+      console.log(result.data.error.errors);
+      toast.error("this testset doesnt exist");
+      // console.log(result.status === 200);
+    } else {
+      console.log(result.data);
+      this.refreshPage();
+      if (result.data.testname !== "")
+        return toast.success(`testcase is updated`);
+    }
+  };
+  OpenModal = (id) => {
+    console.log(id);
+    let tid = id._id;
+    let name = id.testname;
+    let status = id.status;
+
+    let testlevel = id.testlevel;
+    let testinfo = id.testlevel;
+
+    this.setState({
+      setModal: true,
+      testcaseid: tid,
+      formdata: {
+        testname: name,
+        testinfo: testinfo,
+        status: status,
+        testlevel: testlevel,
+        assigntoproject: "",
+      },
+    });
   };
   loadtestcases = () => {
     axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
@@ -99,7 +167,9 @@ export default class Testview extends Component {
                                   fontSize: "20px",
                                   cursor: "pointer",
                                 }}
-                                onClick={() => this.DeleteStep(vall._id)}
+                                onClick={() =>
+                                  this.DeleteStep(vall._id, val._id)
+                                }
                               ></i>
                             </div>
                           ))}
@@ -122,7 +192,7 @@ export default class Testview extends Component {
                                 cursor: "pointer",
                                 marginLeft: "5px",
                               }}
-                              onClick={this.OpenModal}
+                              onClick={(e) => this.OpenModal(val)}
                             ></i>
                           </center>
                         </td>
@@ -169,7 +239,7 @@ export default class Testview extends Component {
                               type="text"
                               name="testname"
                               autoComplete="off"
-                              value={this.state.testname}
+                              value={this.state.formdata.testname}
                               onChange={this.handlechange}
                             />
                           </div>
@@ -184,7 +254,7 @@ export default class Testview extends Component {
                               type="text"
                               autoComplete="off"
                               name="testinfo"
-                              value={this.state.testinfo}
+                              value={this.state.formdata.testinfo}
                               onChange={this.handlechange}
                             />
                           </div>
@@ -200,7 +270,7 @@ export default class Testview extends Component {
                               id="status"
                               className="form-control"
                               name="status"
-                              value={this.state.status}
+                              value={this.state.formdata.status}
                               onChange={this.handlechange}
                             >
                               <option value="">select</option>
@@ -221,7 +291,7 @@ export default class Testview extends Component {
                               id="level"
                               className="form-control"
                               onChange={this.handlechange}
-                              value={this.state.testlevel}
+                              value={this.state.formdata.testlevel}
                               name="testlevel"
                             >
                               <option value="">select</option>
@@ -236,26 +306,10 @@ export default class Testview extends Component {
                     </div>
                     <div className="row">
                       <div className="col-md-6">
-                        <Form.Group className="row">
-                          <label>Assign To TestSet</label>
-                          {/* {console.log(this.state.AlltestsetData)} */}
-                          <div className="col-sm-9">
-                            <select
-                              className="form-control"
-                              onChange={this.handlechange}
-                              value={this.state.assigntoproject}
-                              name="assigntoproject"
-                              id="assigntoproject"
-                            >
-                              <option value="">select</option>
-                            </select>
-                          </div>
-                        </Form.Group>
                         <button
                           type="submit"
                           className="btn btn-gradient-primary mr-2"
-                          name="assigntoproject"
-                          onClick={this.handleSubmit}
+                          onClick={this.Onupdate}
                         >
                           Submit
                         </button>

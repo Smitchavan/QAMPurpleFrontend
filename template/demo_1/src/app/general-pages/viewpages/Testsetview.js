@@ -12,10 +12,15 @@ export default class Testsetview extends Component {
     super(props);
     this.state = {
       AlltestsetData: [],
+      testcasedata: [],
+      testcaseid: "",
       setModal: false,
       setModalT: false,
+      setModalTh: false,
+
       testcase: [],
       testsetupdate: [],
+
       testsetid: "",
       testsetname: "",
       assigntoproject: "",
@@ -24,6 +29,7 @@ export default class Testsetview extends Component {
   }
   componentDidMount() {
     this.GetAlltestSet();
+    this.loadtestcases();
   }
   refreshPage() {
     window.location.reload(false);
@@ -31,11 +37,31 @@ export default class Testsetview extends Component {
   Updatetestset = async (data) => {
     await this.setState({ setModalT: true, testsetupdate: data });
   };
-  GetAlltestSet = () => {
-    axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
-      //console.log(res.data);
-      this.setState({ AlltestsetData: res.data });
+  loadtestcases = () => {
+    axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
+      // console.log(res.data);
+      this.setState({ testcasedata: res.data });
     });
+  };
+  // CAllAPI = () => {
+  //   axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
+  //     console.log("smit", res.data);
+  //     // this.setState({ testcase: res.data.testcase });
+  //   });
+  // };
+  GetAlltestSet = async () => {
+    try {
+      let res = await axios.get(
+        "http://localhost:5000/api/testset/gettestsets"
+      );
+      await this.setState({ AlltestsetData: res.data });
+      // await this.setState({ testcase: res });
+      // console.log("latest console data", this.state.AlltestsetData);
+    } catch (error) {
+      console.log(error);
+    }
+
+    // console.log("esata", this.state.AlltestsetData);
   };
 
   updateSubmit = async (e) => {
@@ -57,25 +83,57 @@ export default class Testsetview extends Component {
           },
         }
       );
-      if (result.status) {
-        this.refreshPage();
+      if (result.data.err === "typeerror") {
+        console.log(result.data);
+        toast.error("this testset doesnt exist");
+        // console.log(result.status === 200);
       } else {
         console.log(result.data);
+        this.refreshPage();
       }
     }
 
     //
   };
-  Handlechange = async (e, data, id) => {
+  Inserttestcase = async (data) => {
+    console.log(data);
+    let tid = this.state.testsetid;
+    console.log(tid);
+    if (this.state.testsetid === undefined) {
+      toast.error("Please !!!! set Testset name first");
+    } else {
+      try {
+        let Result = await axios.post(
+          "http://localhost:5000/api/testset/inserttestsbyid",
+          [{ id: tid }, { testcaseinfo: data }]
+        );
+        console.log(Result);
+        // console.log(data.testname);
+        toast.success(`test case "${data.testname}" added successfully`);
+        this.GetAlltestSet();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  OpenModal = async (id) => {
+    // console.log("hii", id);
+
+    this.setState({ setModalTh: true, testsetid: id });
+  };
+  Handlechange = async (e, data) => {
     if (data) {
-      // console.log(data);
-      // console.log(e);
-      // console.log(id);
+      // console.log("data", data);
+      // console.log("e", e);
+      // console.log("id", e._id);
+      let testid = e._id;
       let updatestate = promisify(this.setState);
       await updatestate({
         setModal: true,
         testcase: e,
         testsetid: data,
+        testcaseid: testid,
       });
     } else {
       e.preventDefault();
@@ -90,6 +148,46 @@ export default class Testsetview extends Component {
     }
 
     // console.log(updatestate);
+  };
+  Delstep = async (testsetid, data) => {
+    // console.log(data._id);
+    let id = data._id;
+    // console.log(testsetid);
+    let testid = this.state.testcaseid;
+    // console.log(testid);
+    // console.log("prabhas", this.state.testcase);
+    // console.log(this.state.testcase);
+
+    this.setState((prevState) => {
+      // Create a copy of the object containing the nested array
+      const newObj = { ...prevState.testcase };
+
+      // Find the index of the item in the nested array that you want to delete
+      const indexToDelete = newObj.stepArr.findIndex((item) => item._id === id);
+
+      // If the item exists in the nested array, delete it
+      if (indexToDelete !== -1) {
+        newObj.stepArr.splice(indexToDelete, 1);
+      }
+
+      // Set the state with the updated object
+      return {
+        ...prevState,
+        testcase: newObj,
+      };
+    });
+
+    let Result = await axios.post(
+      "http://localhost:5000/api/testset/delstepfromtestset",
+      { data: { testsetId: testsetid, id: id, testid: testid } }
+    );
+    console.log(Result);
+    if (Result.data.modifiedCount === 1) {
+      // this.loadtestcases();
+      toast.success("step removed successfully");
+    } else {
+      toast.error("Test Case does not exist,Please Refresh");
+    }
   };
   Deletetestset = async (id) => {
     this.setState((prevState) => ({
@@ -121,7 +219,7 @@ export default class Testsetview extends Component {
     console.log(Result);
     if (Result.data.modifiedCount === 1) {
       toast.success("test removed successfully");
-      this.refreshPage();
+      // this.refreshPage();
     } else {
       toast.error("Test Case does not exist,Please Refresh");
     }
@@ -191,6 +289,15 @@ export default class Testsetview extends Component {
                               }}
                               onClick={() => this.Updatetestset(val)}
                             ></i>
+                            <i
+                              className="mdi mdi-plus-circle"
+                              style={{
+                                fontSize: "20px",
+                                cursor: "pointer",
+                                marginLeft: "5px",
+                              }}
+                              onClick={() => this.OpenModal(val._id)}
+                            ></i>
                           </center>
                         </td>
                       </tr>
@@ -249,29 +356,37 @@ export default class Testsetview extends Component {
                               </td>
                               <td> {this.state.testcase.testlevel} </td>
                               <td> {this.state.testcase.assigntoproject}</td>
+                              {/* {console.log("p k data", this.state.testcase)} */}
                               <td>
-                                {this.state.testcase.stepArr?.map((val) => (
-                                  <div>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        cursor: "pointer",
-                                      }}
-                                    >
-                                      <div>{val.steps}</div>
-                                      <i
-                                        className="mdi mdi-delete"
+                                {this.state.testcase.stepArr?.map(
+                                  (val, index) => (
+                                    <div key={index}>
+                                      <div
                                         style={{
-                                          fontSize: "20px",
+                                          display: "flex",
+                                          justifyContent: "space-between",
                                           cursor: "pointer",
-                                          marginLeft: "10px",
                                         }}
-                                        onClick={() => console.log(val._id)}
-                                      ></i>
+                                      >
+                                        <div>{val.steps}</div>
+                                        <i
+                                          className="mdi mdi-delete"
+                                          style={{
+                                            fontSize: "20px",
+                                            cursor: "pointer",
+                                            marginLeft: "10px",
+                                          }}
+                                          onClick={() =>
+                                            this.Delstep(
+                                              this.state.testsetid,
+                                              val
+                                            )
+                                          }
+                                        ></i>
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
+                                  )
+                                )}
                               </td>
                               <td>
                                 <div>
@@ -348,6 +463,54 @@ export default class Testsetview extends Component {
                   Submit
                 </button>
               </form>
+            </Modal.Body>
+            <Modal.Footer></Modal.Footer>
+          </Modal>
+          <Modal
+            show={this.state.setModalTh}
+            onHide={() => this.setState({ setModalTh: false })}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title>ADD TESTCASES</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body>
+              {" "}
+              <div className="card">
+                <div className="card-body">
+                  <div className="table-responsive">
+                    <table className="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Test case name</th>
+                          <th>Testlevel</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      {this.state.testcasedata.map((val) => (
+                        <tbody>
+                          <tr>
+                            <td>{val.testname}</td>
+                            <td>{val.testlevel}</td>
+                            <td className="text-danger">{val.testlevel}</td>
+                            <td>
+                              <i
+                                className="mdi mdi-plus"
+                                style={{
+                                  fontSize: "20px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => this.Inserttestcase(val)}
+                              ></i>
+                            </td>
+                          </tr>
+                        </tbody>
+                      ))}
+                    </table>
+                  </div>
+                </div>
+              </div>
             </Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>

@@ -9,6 +9,7 @@ export default class TestSet extends Component {
     this.state = {
       testcasedata: [],
       testbyid: "",
+      query: "",
       testsetdata: [],
       AlltestsetData: [],
       checked: false,
@@ -57,6 +58,18 @@ export default class TestSet extends Component {
       }
     }
   };
+  handlesearch = async (e) => {
+    e.preventDefault();
+    await this.setState({ query: e.target.value });
+    // submit search query to Node.js app
+    let result = await axios.get(
+      "http://localhost:5000/api/testcase/searchtestcase?q=" + this.state.query
+    );
+
+    // console.log(result.data);
+    this.setState({ testcasedata: result.data });
+  };
+
   handlechange = async (e) => {
     e.preventDefault();
     const { name, value } = e.target;
@@ -233,6 +246,27 @@ export default class TestSet extends Component {
                   {" "}
                   <code>Select TestCases, </code>for adding into testset.
                 </p>
+                <Form.Group>
+                  <div className="input-group">
+                    <Form.Control
+                      type="text"
+                      className="form-control"
+                      placeholder="search testcase by name or info"
+                      aria-label="Recipient's username"
+                      aria-describedby="basic-addon2"
+                      value={this.state.query}
+                      onChange={this.handlesearch}
+                    />
+                    <div className="input-group-append">
+                      <button
+                        className="btn btn-sm btn-gradient-primary"
+                        type="button"
+                      >
+                        Search
+                      </button>
+                    </div>
+                  </div>
+                </Form.Group>
                 <div className="table-responsive">
                   <table className="table table-hover">
                     <thead>
