@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { Modal } from "react-bootstrap";
 import { Form } from "react-bootstrap";
@@ -12,6 +12,7 @@ export default class Testview extends Component {
       testcasedata: [],
       setModal: false,
       testcaseid: "",
+
       currentPage: 1,
       itemsPerPage: 5,
       totalItems: 0,
@@ -23,6 +24,7 @@ export default class Testview extends Component {
         testlevel: "",
         assigntoproject: "",
       },
+      isExpired: false,
     };
     this.setState = this.setState.bind(this);
   }
@@ -131,6 +133,10 @@ export default class Testview extends Component {
     });
   };
   loadtestcases = () => {
+    let token = JSON.parse(localStorage.getItem("token"));
+    if (token === null) {
+      this.setState({ isExpired: true });
+    }
     try {
       const itemsPerPage = this.state.itemsPerPage;
       axios
@@ -138,6 +144,9 @@ export default class Testview extends Component {
           params: {
             page: this.state.currentPage,
             limit: itemsPerPage,
+          },
+          headers: {
+            "x-auth-token": token,
           },
         })
         .then((res) => {
@@ -152,9 +161,17 @@ export default class Testview extends Component {
             ),
           });
           console.log(res.data);
+        })
+        .catch((err) => {
+          if (err.response.data.error === "jwt expired") {
+            console.log(err);
+            this.setState({ isExpired: true });
+          } else {
+            console.log(err.response.data.error);
+          }
         });
     } catch (err) {
-      console.log(err.message);
+      console.log(err);
     }
   };
   handlePageChange = (data) => {
@@ -166,6 +183,7 @@ export default class Testview extends Component {
     return (
       <div>
         <Toaster />
+        {this.state.isExpired === true && <Redirect to="/login" />}
         <Form.Group>
           <div className="input-group">
             <Form.Control

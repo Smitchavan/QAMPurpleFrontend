@@ -6,7 +6,6 @@ import LockScreen from "./app/user-pages/Lockscreen";
 import Navbar from "./app/shared/Navbar";
 import TestSet from "./app/general-pages/TestSet";
 import TestPage from "./app/general-pages/TestPage";
-import ProjectPage from "./app/general-pages/ProjectPage";
 import { Switch, Route } from "react-router-dom";
 import "./app/App.scss";
 import Forgotpassword from "./app/user-pages/Forgotpassword";
@@ -49,10 +48,7 @@ class Appl extends Component {
             <TestSet />
           </div>
         </Route>
-        <Route path="/projectpage">
-          <Navbar />
-          <ProjectPage />
-        </Route>
+
         <Route path="/forgotpassword">
           <div className="content-wrapper">
             <Forgotpassword />

@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-
+import { Redirect } from "react-router-dom";
+import Pagination from "../pagination/Pagination";
 export class TestPage extends Component {
   constructor(props) {
     super(props);
@@ -16,6 +17,11 @@ export class TestPage extends Component {
       stepArr: [],
       AlltestsetData: [],
       testsetid: "",
+      isExpired: false,
+      currentPage: 1,
+      itemsPerPage: 5,
+      totalItems: 0,
+      pageCount: 0,
     };
   }
   componentDidMount() {
@@ -38,7 +44,7 @@ export class TestPage extends Component {
   GetAlltestSet = () => {
     axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
       // console.log(res.data);
-      this.setState({ AlltestsetData: res.data });
+      this.setState({ AlltestsetData: res.data.Result });
     });
   };
   AddtoTestset = async (data) => {
@@ -70,18 +76,40 @@ export class TestPage extends Component {
   }
   getStep = () => {
     let token = JSON.parse(localStorage.getItem("token"));
+    const itemsPerPage = this.state.itemsPerPage;
     axios
       .get("http://localhost:5000/api/step/getstep", {
         headers: {
           "x-auth-token": token,
         },
+        params: {
+          page: this.state.currentPage,
+          limit: itemsPerPage,
+        },
       })
-      .then((resulto) => {
+      .then((res) => {
         //console.log(resulto.data);
-        this.setState({ stepArr: resulto.data });
+        let data = res.data.Stepres;
+        this.setState({ stepArr: data });
+        this.setState({ data });
+        this.setState({ totalItems: res.data.counter });
+        this.setState({
+          pageCount: Math.ceil(this.state.totalItems / this.state.itemsPerPage),
+        });
       })
       .then(() => this.empty())
-      .catch((err) => console.log(err));
+      .catch((error) => {
+        if (error.response.data.msg)
+          return toast.error(error.response.data.msg);
+
+        toast.error(error.response.data.error);
+        this.setState({ isExpired: true });
+      });
+  };
+  handlePageChange = (data) => {
+    //here any param by default returns object with selected as key and page no. as value
+    this.setState({ currentPage: data.selected + 1 }, this.getStep);
+    // console.log(this.fetchData)
   };
   empty = () => {
     document.getElementById("stepname").value = "";
@@ -142,8 +170,17 @@ export class TestPage extends Component {
     });
   };
   Posttestset = async (obj) => {
+    let token = JSON.parse(localStorage.getItem("token"));
+    // console.log("token", token);
+    if (token === null) {
+      this.setState({ isExpired: true });
+    }
     try {
-      let result = await axios.post("http://localhost:5000/api/testcase", obj);
+      let result = await axios.post("http://localhost:5000/api/testcase", obj, {
+        headers: {
+          "x-auth-token": token,
+        },
+      });
 
       console.log("result", result);
       this.setState({
@@ -209,7 +246,7 @@ export class TestPage extends Component {
     return (
       <div>
         <Toaster />
-
+        {this.state.isExpired === true && <Redirect to="/login" />}
         <div style={{ display: "flexbox" }}>
           <div className="page-header">
             <nav aria-label="breadcrumb">
@@ -417,6 +454,11 @@ export class TestPage extends Component {
             </div>
           </div>
         </div>
+        <Pagination
+          currentPage={this.state.currentPage}
+          handlePageChange={this.handlePageChange}
+          pageCount={this.state.pageCount}
+        />
       </div>
     );
   }

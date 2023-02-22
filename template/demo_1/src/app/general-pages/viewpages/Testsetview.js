@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import Pagination from "../../pagination/Pagination";
 import { Form } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import { Modal } from "react-bootstrap";
 import { promisify } from "util";
@@ -23,6 +23,7 @@ export default class Testsetview extends Component {
       itemsPerPage: 5,
       totalItems: 0,
       pageCount: 0,
+      showMore: false,
 
       testcase: [],
       testsetupdate: [],
@@ -64,6 +65,7 @@ export default class Testsetview extends Component {
     await this.setState({ setModalT: true, testsetupdate: data });
   };
   loadtestcases = () => {
+    let token = JSON.parse(localStorage.getItem("token"));
     try {
       // axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
       //   // console.log(res.data);
@@ -77,6 +79,9 @@ export default class Testsetview extends Component {
             page: this.state.currentPage,
             limit: itemsPerPage,
           },
+          headers: {
+            "x-auth-token": token,
+          },
         })
         .then((res) => {
           let data = res.data.Gettest;
@@ -89,6 +94,13 @@ export default class Testsetview extends Component {
               this.state.totalItems / this.state.itemsPerPage
             ),
           });
+        })
+        .catch((error) => {
+          if (error.response.data.msg)
+            return toast.error(error.response.data.msg);
+
+          toast.error(error.response.data.error);
+          this.setState({ isExpired: true });
         });
     } catch (error) {}
   };
@@ -279,25 +291,29 @@ export default class Testsetview extends Component {
   };
 
   Deletestcase = async (id) => {
-    // console.log("testcase", id);
-    // console.log("testset", this.state.testsetid);
     let Result = await axios.post(
       "http://localhost:5000/api/testset/deltestfromid",
       { data: { testsetId: this.state.testsetid, id: id } }
     );
+
     console.log(Result);
     if (Result.data.modifiedCount === 1) {
       toast.success("test removed successfully");
-      // this.refreshPage();
+      this.refreshPage();
     } else {
       toast.error("Test Case does not exist,Please Refresh");
     }
   };
+  handleButtonClick = () => {
+    this.setState({ showAll: !this.state.showAll });
+  };
   render() {
+    const { showAll } = this.state;
     return (
       <div>
         {" "}
         <Toaster />
+        {this.state.isExpired === true && <Redirect to="/login" />}
         <Form.Group>
           <div className="input-group">
             <Form.Control
@@ -334,28 +350,43 @@ export default class Testsetview extends Component {
                       </th>
                     </tr>
                   </thead>
-                  {this.state.AlltestsetData.map((val) => (
-                    <tbody key={val._id}>
+                  {this.state.AlltestsetData.map((val, index) => (
+                    <tbody key={index}>
                       <tr>
                         <td> {val.testsetname} </td>
 
                         <td> {val.assigntoproject}</td>
                         <td>
-                          {val.testcases.map((valu) => (
-                            <div
+                          <div>
+                            {val.testcases.map((valu, index) => (
+                              <ul key={index}>
+                                <li
+                                  style={{
+                                    display:
+                                      index === 0 || showAll ? "flex" : "none",
+                                    justifyContent: "space-between",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  <div>{valu.testname} </div>
+                                  <button
+                                    className="mdi mdi-open-in-new"
+                                    onClick={() =>
+                                      this.Handlechange(valu, val._id)
+                                    }
+                                  ></button>
+                                </li>
+                              </ul>
+                            ))}{" "}
+                            <i
                               style={{
-                                display: "flex",
-                                justifyContent: "space-between",
                                 cursor: "pointer",
                               }}
+                              onClick={this.handleButtonClick}
                             >
-                              <div>{valu.testname} </div>{" "}
-                              <button
-                                className="mdi mdi-open-in-new"
-                                onClick={() => this.Handlechange(valu, val._id)}
-                              ></button>
-                            </div>
-                          ))}{" "}
+                              {showAll ? "^" : "......"}
+                            </i>
+                          </div>
                         </td>
                         <td>
                           <center>

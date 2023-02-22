@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import axios from "axios";
+import { Redirect } from "react-router-dom";
 import { toast } from "react-hot-toast";
-
+import Pagination from "../pagination/Pagination";
 export default class TestSet extends Component {
   constructor(props) {
     super(props);
@@ -10,6 +11,12 @@ export default class TestSet extends Component {
       testcasedata: [],
       testbyid: "",
       query: "",
+
+      currentPage: 1,
+      itemsPerPage: 5,
+      totalItems: 0,
+      pageCount: 0,
+
       testsetdata: [],
       AlltestsetData: [],
       checked: false,
@@ -18,6 +25,7 @@ export default class TestSet extends Component {
         testcases: [],
         assigntoproject: "",
       },
+      isExpired: true,
     };
   }
   componentDidMount() {
@@ -89,10 +97,48 @@ export default class TestSet extends Component {
   };
 
   loadtestcases = () => {
-    axios.get("http://localhost:5000/api/testcase/gettests").then((res) => {
-      this.setState({ testcasedata: res.data.Gettest });
-      // console.log(res.data);
-    });
+    let token = JSON.parse(localStorage.getItem("token"));
+    try {
+      const itemsPerPage = this.state.itemsPerPage;
+      axios
+        .get("http://localhost:5000/api/testcase/gettests", {
+          params: {
+            page: this.state.currentPage,
+            limit: itemsPerPage,
+          },
+          headers: {
+            "x-auth-token": token,
+          },
+        })
+        .then((res) => {
+          let data = res.data.Gettest;
+          this.setState({ testcasedata: data });
+
+          this.setState({ data });
+          this.setState({ totalItems: res.data.counter });
+          this.setState({
+            pageCount: Math.ceil(
+              this.state.totalItems / this.state.itemsPerPage
+            ),
+          });
+          console.log(res.data);
+        })
+        .catch((err) => {
+          if (err.response.data.error === "jwt expired") {
+            console.log(err);
+            this.setState({ isExpired: true });
+          } else {
+            console.log(err.response.data.error);
+          }
+        });
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+  handlePageChange = (data) => {
+    //here any param by default returns object with selected as key and page no. as value
+    this.setState({ currentPage: data.selected + 1 }, this.loadtestcases);
+    // console.log(this.fetchData)
   };
   GettestSet = async (testsetid) => {
     // console.log(testsetid);
@@ -145,6 +191,8 @@ export default class TestSet extends Component {
   render() {
     return (
       <div>
+        {" "}
+        {this.state.isExpired === true && <Redirect to="/login" />}
         <div className="page-header">
           <h3 className="page-title"> </h3>
           <nav aria-label="breadcrumb">
@@ -319,6 +367,11 @@ export default class TestSet extends Component {
                       </tbody>
                     ))}
                   </table>
+                  <Pagination
+                    currentPage={this.state.currentPage}
+                    handlePageChange={this.handlePageChange}
+                    pageCount={this.state.pageCount}
+                  />
                   {/* <table className="table table-hover">
                     <thead>
                       <tr>
