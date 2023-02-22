@@ -25,7 +25,7 @@ export default class TestSet extends Component {
         testcases: [],
         assigntoproject: "",
       },
-      isExpired: true,
+      isExpired: false,
     };
   }
   componentDidMount() {

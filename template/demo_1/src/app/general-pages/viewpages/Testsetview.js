@@ -350,8 +350,8 @@ export default class Testsetview extends Component {
                       </th>
                     </tr>
                   </thead>
-                  {this.state.AlltestsetData.map((val, index) => (
-                    <tbody key={index}>
+                  {this.state.AlltestsetData.map((val, oindex) => (
+                    <tbody key={oindex}>
                       <tr>
                         <td> {val.testsetname} </td>
 
@@ -361,6 +361,7 @@ export default class Testsetview extends Component {
                             {val.testcases.map((valu, index) => (
                               <ul key={index}>
                                 <li
+                                  key={valu._id + index}
                                   style={{
                                     display:
                                       index === 0 || showAll ? "flex" : "none",
@@ -377,12 +378,12 @@ export default class Testsetview extends Component {
                                   ></button>
                                 </li>
                               </ul>
-                            ))}{" "}
+                            ))}
                             <i
                               style={{
                                 cursor: "pointer",
                               }}
-                              onClick={this.handleButtonClick}
+                              onClick={() => this.handleButtonClick()}
                             >
                               {showAll ? "^" : "......"}
                             </i>

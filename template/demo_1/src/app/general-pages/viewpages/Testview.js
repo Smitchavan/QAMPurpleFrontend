@@ -25,6 +25,7 @@ export default class Testview extends Component {
         assigntoproject: "",
       },
       isExpired: false,
+      showAll: false,
     };
     this.setState = this.setState.bind(this);
   }
@@ -179,7 +180,11 @@ export default class Testview extends Component {
     this.setState({ currentPage: data.selected + 1 }, this.loadtestcases);
     // console.log(this.fetchData)
   };
+  handleButtonClick = () => {
+    this.setState({ showAll: !this.state.showAll });
+  };
   render() {
+    const { showAll } = this.state;
     return (
       <div>
         <Toaster />
@@ -231,28 +236,41 @@ export default class Testview extends Component {
                         <td> {val.status} </td>
                         <td>
                           {val.stepArr
-                            ? val.stepArr.map((vall) => (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  <div>{vall.steps}</div>{" "}
-                                  <i
-                                    className="mdi mdi-delete"
+                            ? val.stepArr.map((vall, index) => (
+                                <ul key={index}>
+                                  <li
                                     style={{
-                                      fontSize: "20px",
+                                      display:
+                                        index === 0 || showAll
+                                          ? "flex"
+                                          : "none",
+                                      justifyContent: "space-between",
                                       cursor: "pointer",
                                     }}
-                                    onClick={() =>
-                                      this.DeleteStep(vall._id, val._id)
-                                    }
-                                  ></i>
-                                </div>
+                                  >
+                                    <div>{vall.steps}</div>{" "}
+                                    <i
+                                      className="mdi mdi-delete"
+                                      style={{
+                                        fontSize: "20px",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() =>
+                                        this.DeleteStep(vall._id, val._id)
+                                      }
+                                    ></i>
+                                  </li>
+                                </ul>
                               ))
                             : null}
+                          <i
+                            style={{
+                              cursor: "pointer",
+                            }}
+                            onClick={this.handleButtonClick}
+                          >
+                            {showAll ? "^" : "......"}
+                          </i>
                         </td>
                         <td>{val.assigntoproject} </td>
                         <td>
