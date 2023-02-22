@@ -23,7 +23,7 @@ export default class Testsetview extends Component {
       itemsPerPage: 5,
       totalItems: 0,
       pageCount: 0,
-      showMore: false,
+      showAll: {},
 
       testcase: [],
       testsetupdate: [],
@@ -304,8 +304,17 @@ export default class Testsetview extends Component {
       toast.error("Test Case does not exist,Please Refresh");
     }
   };
-  handleButtonClick = () => {
-    this.setState({ showAll: !this.state.showAll });
+  handleButtonClick = (testsetId) => {
+    if (testsetId) {
+      const showObj = {};
+      showObj[`${testsetId}`] = !this.state.showAll[`${testsetId}`];
+      this.setState({
+        showAll: {
+          ...this.state.showAll,
+          ...showObj,
+        },
+      });
+    }
   };
   render() {
     const { showAll } = this.state;
@@ -350,8 +359,8 @@ export default class Testsetview extends Component {
                       </th>
                     </tr>
                   </thead>
-                  {this.state.AlltestsetData.map((val, oindex) => (
-                    <tbody key={oindex}>
+                  {this.state.AlltestsetData.map((val, index) => (
+                    <tbody key={index}>
                       <tr>
                         <td> {val.testsetname} </td>
 
@@ -359,12 +368,13 @@ export default class Testsetview extends Component {
                         <td>
                           <div>
                             {val.testcases.map((valu, index) => (
-                              <ul key={index}>
+                              <ul key={index + valu._id}>
                                 <li
-                                  key={valu._id + index}
                                   style={{
                                     display:
-                                      index === 0 || showAll ? "flex" : "none",
+                                      index === 0 || showAll[`${val._id}`]
+                                        ? "flex"
+                                        : "none",
                                     justifyContent: "space-between",
                                     cursor: "pointer",
                                   }}
@@ -378,14 +388,16 @@ export default class Testsetview extends Component {
                                   ></button>
                                 </li>
                               </ul>
-                            ))}
+                            ))}{" "}
                             <i
                               style={{
                                 cursor: "pointer",
                               }}
-                              onClick={() => this.handleButtonClick()}
+                              onClick={() => {
+                                this.handleButtonClick(val ? val._id : "");
+                              }}
                             >
-                              {showAll ? "^" : "......"}
+                              {showAll[`${val._id}`] ? "^" : "......"}
                             </i>
                           </div>
                         </td>
