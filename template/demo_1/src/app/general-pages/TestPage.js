@@ -243,6 +243,7 @@ export class TestPage extends Component {
     }
   };
   render() {
+    const startIndex = (this.state.currentPage - 1) * this.state.itemsPerPage;
     return (
       <div>
         <Toaster />
@@ -313,11 +314,9 @@ export class TestPage extends Component {
                       </thead>
                       {this.state.stepArr.map((val, index) => (
                         <tbody key={val._id}>
-                          {console.log(index)}
+                          {/* {console.log(index)} */}
                           <tr>
-                            <td>
-                              {/* {(index + 1)((this.state.currentPage - 1) * 5)} */}
-                            </td>
+                            <td>{startIndex + index + 1}</td>
                             <td>
                               {" "}
                               <i

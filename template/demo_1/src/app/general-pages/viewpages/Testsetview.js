@@ -229,18 +229,14 @@ export default class Testsetview extends Component {
     // console.log(this.state.testcase);
 
     this.setState((prevState) => {
-      // Create a copy of the object containing the nested array
       const newObj = { ...prevState.testcase };
 
-      // Find the index of the item in the nested array that you want to delete
       const indexToDelete = newObj.stepArr.findIndex((item) => item._id === id);
 
-      // If the item exists in the nested array, delete it
       if (indexToDelete !== -1) {
         newObj.stepArr.splice(indexToDelete, 1);
       }
 
-      // Set the state with the updated object
       return {
         ...prevState,
         testcase: newObj,
@@ -369,8 +365,8 @@ export default class Testsetview extends Component {
                           <div>
                             {/* {console.log(val.testcases.length)} */}
                             {val.testcases.map((valu, index) => (
-                              <ul key={index + valu._id}>
-                                <li
+                              <div key={index + valu._id}>
+                                <div
                                   style={{
                                     display:
                                       index === 0 || showAll[`${val._id}`]
@@ -380,17 +376,27 @@ export default class Testsetview extends Component {
                                     cursor: "pointer",
                                   }}
                                 >
-                                  <div>{valu.testname} </div>
+                                  <div
+                                    style={{
+                                      margin: 7,
+                                    }}
+                                  >
+                                    {valu.testname}{" "}
+                                  </div>
                                   <button
                                     className="mdi mdi-open-in-new"
+                                    style={{
+                                      margin: 5,
+                                    }}
                                     onClick={() =>
                                       this.Handlechange(valu, val._id)
                                     }
                                   ></button>
-                                </li>
-                              </ul>
+                                </div>
+                              </div>
                             ))}
-                            {val.testcases.length !== 1 ? (
+                            {val.testcases.length !== 1 &&
+                            val.testcases.length !== 0 ? (
                               <i
                                 style={{
                                   cursor: "pointer",

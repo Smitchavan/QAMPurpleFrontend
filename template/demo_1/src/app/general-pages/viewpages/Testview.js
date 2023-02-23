@@ -32,20 +32,45 @@ export default class Testview extends Component {
   componentDidMount() {
     this.loadtestcases();
   }
+
   DeleteStep = async (step, caseid) => {
-    console.log("HII", step, caseid);
+    // console.log("HII", step, caseid);
+    // console.log(this.state.testcasedata);
+    this.setState((prevState) => {
+      // console.log(prevState.testcasedata, "state");
+      const newObj = [...prevState.testcasedata];
+      console.log(newObj);
+      const indexTest = Object.values(newObj).findIndex(
+        (item) => item._id === caseid
+      );
+      let idel = newObj[indexTest].stepArr.findIndex(
+        (item) => item._id === step
+      );
+      if (idel !== -1) {
+        // console.log(newObj);
+        newObj[indexTest].stepArr.splice(idel, 1);
+      }
+
+      // console.log("new", newObj);
+      return {
+        ...prevState,
+        testcasedata: newObj,
+      };
+    });
+
     let Result = await axios.post(
       "http://localhost:5000/api/testcase/deletestep",
       { data: { stepid: step, id: caseid } }
     );
-    console.log(Result);
+    // console.log(Result);
     if (Result.data.modifiedCount === 1) {
-      toast.success("test removed successfully");
-      this.refreshPage();
+      toast.success("step removed successfully");
+      // this.refreshPage();
     } else {
       toast.error("Test Case does not exist,Please Refresh");
     }
   };
+
   refreshPage() {
     window.location.reload(false);
   }
@@ -161,7 +186,7 @@ export default class Testview extends Component {
               this.state.totalItems / this.state.itemsPerPage
             ),
           });
-          console.log(res.data);
+          // console.log(res.data);
         })
         .catch((err) => {
           if (err.response.data.error === "jwt expired") {
@@ -180,8 +205,17 @@ export default class Testview extends Component {
     this.setState({ currentPage: data.selected + 1 }, this.loadtestcases);
     // console.log(this.fetchData)
   };
-  handleButtonClick = () => {
-    this.setState({ showAll: !this.state.showAll });
+  handleButtonClick = (testcaseid) => {
+    if (testcaseid) {
+      const showObj = {};
+      showObj[`${testcaseid}`] = !this.state.showAll[`${testcaseid}`];
+      this.setState({
+        showAll: {
+          ...this.state.showAll,
+          ...showObj,
+        },
+      });
+    }
   };
   render() {
     const { showAll } = this.state;
@@ -237,40 +271,51 @@ export default class Testview extends Component {
                         <td>
                           {val.stepArr
                             ? val.stepArr.map((vall, index) => (
-                                <ul key={index}>
-                                  <li
+                                <div key={index}>
+                                  <div
                                     style={{
                                       display:
-                                        index === 0 || showAll
+                                        index === 0 || showAll[`${val._id}`]
                                           ? "flex"
                                           : "none",
                                       justifyContent: "space-between",
                                       cursor: "pointer",
                                     }}
                                   >
-                                    <div>{vall.steps}</div>{" "}
+                                    <div
+                                      style={{
+                                        marginBottom: 5,
+                                      }}
+                                    >
+                                      {vall.steps}
+                                    </div>{" "}
                                     <i
                                       className="mdi mdi-delete"
                                       style={{
-                                        fontSize: "20px",
+                                        fontSize: "17px",
                                         cursor: "pointer",
                                       }}
                                       onClick={() =>
                                         this.DeleteStep(vall._id, val._id)
                                       }
                                     ></i>
-                                  </li>
-                                </ul>
+                                  </div>
+                                </div>
                               ))
                             : null}
-                          <i
-                            style={{
-                              cursor: "pointer",
-                            }}
-                            onClick={this.handleButtonClick}
-                          >
-                            {showAll ? "^" : "......"}
-                          </i>
+                          {val.stepArr.length !== 1 &&
+                          val.stepArr.length !== 0 ? (
+                            <i
+                              style={{
+                                cursor: "pointer",
+                              }}
+                              onClick={() =>
+                                this.handleButtonClick(val ? val._id : "")
+                              }
+                            >
+                              {showAll[`${val._id}`] ? "^" : "......"}
+                            </i>
+                          ) : null}
                         </td>
                         <td>{val.assigntoproject} </td>
                         <td>
