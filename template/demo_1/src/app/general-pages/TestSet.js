@@ -325,6 +325,7 @@ export default class TestSet extends Component {
                         <th>Status</th>
                       </tr>
                     </thead>
+
                     {this.state.testcasedata.map((val) => (
                       <tbody
                         key={val._id}

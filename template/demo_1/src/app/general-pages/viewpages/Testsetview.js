@@ -367,6 +367,7 @@ export default class Testsetview extends Component {
                         <td> {val.assigntoproject}</td>
                         <td>
                           <div>
+                            {/* {console.log(val.testcases.length)} */}
                             {val.testcases.map((valu, index) => (
                               <ul key={index + valu._id}>
                                 <li
@@ -388,17 +389,19 @@ export default class Testsetview extends Component {
                                   ></button>
                                 </li>
                               </ul>
-                            ))}{" "}
-                            <i
-                              style={{
-                                cursor: "pointer",
-                              }}
-                              onClick={() => {
-                                this.handleButtonClick(val ? val._id : "");
-                              }}
-                            >
-                              {showAll[`${val._id}`] ? "^" : "......"}
-                            </i>
+                            ))}
+                            {val.testcases.length !== 1 ? (
+                              <i
+                                style={{
+                                  cursor: "pointer",
+                                }}
+                                onClick={() => {
+                                  this.handleButtonClick(val ? val._id : "");
+                                }}
+                              >
+                                {showAll[`${val._id}`] ? "^" : "......"}
+                              </i>
+                            ) : null}
                           </div>
                         </td>
                         <td>

@@ -306,13 +306,18 @@ export class TestPage extends Component {
                     <table className="table table-dark">
                       <thead>
                         <tr>
+                          <th>Id</th>
                           <th> Delete </th>
                           <th> Step name </th>
                         </tr>
                       </thead>
-                      {this.state.stepArr.map((val) => (
+                      {this.state.stepArr.map((val, index) => (
                         <tbody key={val._id}>
+                          {console.log(index)}
                           <tr>
+                            <td>
+                              {/* {(index + 1)((this.state.currentPage - 1) * 5)} */}
+                            </td>
                             <td>
                               {" "}
                               <i
