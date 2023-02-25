@@ -11,7 +11,7 @@ import "./app/App.scss";
 import Forgotpassword from "./app/user-pages/Forgotpassword";
 import Testview from "./app/general-pages/viewpages/Testview";
 import Testsetview from "./app/general-pages/viewpages/Testsetview";
-
+import Runs from "./app/general-pages/Runs";
 class Appl extends Component {
   render() {
     return (
@@ -62,6 +62,11 @@ class Appl extends Component {
         <Route path="/viewtestsets">
           <div className="content-wrapper">
             <Testsetview />
+          </div>
+        </Route>
+        <Route path="/runs">
+          <div className="content-wrapper">
+            <Runs />
           </div>
         </Route>
       </Switch>

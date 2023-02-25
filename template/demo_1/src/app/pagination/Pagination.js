@@ -6,9 +6,10 @@ export default class Pagination extends Component {
     return (
       <div
         style={{
-          position: "fixed",
+          position: "absolute",
           top: "95%",
           left: "50%",
+          marginTop: "25px",
           transform: "translate(-50%, -50%)",
         }}
       >

@@ -18,6 +18,7 @@ export default class TestSet extends Component {
       pageCount: 0,
 
       testsetdata: [],
+      temptestsetdata: [],
       AlltestsetData: [],
       checked: false,
       testsetForm: {
@@ -33,11 +34,37 @@ export default class TestSet extends Component {
     this.GetAlltestSet();
   }
   AddTest = async (test) => {
-    //console.log("HIi Boy", test);
+    console.log("HIi Boy", test._id);
+    console.log(this.state.temptestsetdata);
+    if (this.state.temptestsetdata === undefined) {
+      console.log("no preblem");
+    } else if (
+      this.state.temptestsetdata.testcases.some((item) => item._id === test._id)
+    ) {
+      let answer = window.confirm(
+        "Testcase is Already added do you want to add it again"
+      );
+      if (answer) {
+        let response = await axios.get(
+          "http://localhost:5000/api/testcase/gettestbyid",
+          {
+            params: { id: test._id },
+          }
+        );
+
+        this.setState({ testbyid: response.data });
+
+        this.AddtoTestset(response.data);
+        return;
+      } else {
+        console.log(" not done");
+        return;
+      }
+    }
     let response = await axios.get(
       "http://localhost:5000/api/testcase/gettestbyid",
       {
-        params: { id: test },
+        params: { id: test._id },
       }
     );
 
@@ -46,26 +73,35 @@ export default class TestSet extends Component {
     this.AddtoTestset(response.data);
   };
   AddtoTestset = async (data) => {
-    // console.log(this.state.testsetdata._id);
+    // console.log(this.state.AlltestsetData);
+    // console.log(data);
+    let timestamp = Date.now();
+
+    let newData = { ...data, timestamp };
+    // console.log(newData);
     let testsetid = this.state.testsetdata._id;
-    // console.log(data._id);
+
     if (this.state.testsetdata._id === undefined) {
       toast.error("Please !!!! set Testset name first");
     } else {
       try {
         let Result = await axios.post(
           "http://localhost:5000/api/testset/inserttestsbyid",
-          [{ id: testsetid }, { testcaseinfo: data }]
+          [{ id: testsetid }, { testcaseinfo: newData }]
         );
-        console.log(Result);
-        // console.log(data.testname);
+        // console.log(Result);
+
+        console.log(Result.data);
+
+        // this.candle(Result.data);
         toast.success(`test case "${data.testname}" added successfully`);
-        this.GetAlltestSet();
+        this.GetAlltestSet(Result.data);
       } catch (error) {
         console.log(error);
       }
     }
   };
+
   handlesearch = async (e) => {
     e.preventDefault();
     await this.setState({ query: e.target.value });
@@ -81,7 +117,7 @@ export default class TestSet extends Component {
   handlechange = async (e) => {
     e.preventDefault();
     const { name, value } = e.target;
-    console.log("name", name, "value", value);
+    // console.log("name", name, "value", value);
     this.setState({
       testsetForm: {
         ...this.state.testsetForm,
@@ -89,10 +125,10 @@ export default class TestSet extends Component {
       },
     });
   };
-  GetAlltestSet = () => {
+  GetAlltestSet = (data) => {
     axios.get("http://localhost:5000/api/testset/gettestsets").then((res) => {
       // console.log(res.data);
-      this.setState({ AlltestsetData: res.data });
+      this.setState({ AlltestsetData: res.data, temptestsetdata: data });
     });
   };
 
@@ -280,7 +316,16 @@ export default class TestSet extends Component {
                   >
                     Submit
                   </button>
-                  {/* <button className="btn btn-light">Cancel</button> */}
+                  <button
+                    className="btn btn-light"
+                    onClick={() => {
+                      this.setState({
+                        testsetForm: { testsetname: "", assigntoproject: "" },
+                      });
+                    }}
+                  >
+                    Cancel
+                  </button>
                 </form>
               </div>{" "}
             </div>
@@ -330,7 +375,7 @@ export default class TestSet extends Component {
                       <tbody
                         key={val._id}
                         onClick={() => {
-                          this.AddTest(val._id);
+                          this.AddTest(val);
                         }}
                       >
                         <tr>
@@ -367,12 +412,13 @@ export default class TestSet extends Component {
                         </tr>
                       </tbody>
                     ))}
+                    <Pagination
+                      currentPage={this.state.currentPage}
+                      handlePageChange={this.handlePageChange}
+                      pageCount={this.state.pageCount}
+                    />
                   </table>
-                  <Pagination
-                    currentPage={this.state.currentPage}
-                    handlePageChange={this.handlePageChange}
-                    pageCount={this.state.pageCount}
-                  />
+
                   {/* <table className="table table-hover">
                     <thead>
                       <tr>

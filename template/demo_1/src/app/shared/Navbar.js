@@ -112,7 +112,7 @@ class Navbar extends Component {
                       <i className="mr-3"></i>{" "}
                       <Trans>
                         {" "}
-                        <Link to="/">Create</Link>
+                        <Link to="/runs">Create</Link>
                       </Trans>
                     </Dropdown.Item>
 
@@ -128,40 +128,7 @@ class Navbar extends Component {
                   </Dropdown.Menu>
                 </Dropdown>
               </li>
-              <li className="nav-item">
-                <Dropdown alignRight>
-                  <Dropdown.Toggle className="nav-link">
-                    <div className="nav-profile-text">
-                      <p className="mb-1 text-black">
-                        <Trans>Projects</Trans>
-                      </p>
-                    </div>
-                  </Dropdown.Toggle>
 
-                  <Dropdown.Menu className="navbar-dropdown">
-                    <Dropdown.Item
-                      href="!#"
-                      onClick={(evt) => evt.preventDefault()}
-                    >
-                      {/* <i className="mdi mdi-cached mr-2 text-success"></i> */}{" "}
-                      <i className="mr-3"></i>
-                      <Link to="/projectpage">
-                        <Trans> Create</Trans>
-                      </Link>
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      href="!#"
-                      onClick={(evt) => evt.preventDefault()}
-                    >
-                      <i className="mr-3"></i>
-                      <Trans>
-                        <Link to="/">View</Link>
-                      </Trans>
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
-              </li>
               <li className="nav-item">
                 <Dropdown alignRight>
                   <Dropdown.Toggle className="nav-link">

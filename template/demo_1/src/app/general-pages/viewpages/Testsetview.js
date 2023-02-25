@@ -25,6 +25,7 @@ export default class Testsetview extends Component {
       pageCount: 0,
       showAll: {},
 
+      tempsetdata: [],
       testcase: [],
       testsetupdate: [],
 
@@ -105,7 +106,7 @@ export default class Testsetview extends Component {
     } catch (error) {}
   };
 
-  GetAlltestSet = async () => {
+  GetAlltestSet = async (dataset) => {
     try {
       const itemsPerPage = this.state.itemsPerPage;
       let res = await axios.get(
@@ -118,7 +119,7 @@ export default class Testsetview extends Component {
         }
       );
       let data = res.data.Result;
-      await this.setState({ AlltestsetData: data });
+      await this.setState({ AlltestsetData: data, tempsetdata: dataset });
       this.setState({ data });
       this.setState({ totalItems: res.data.counter });
       this.setState({
@@ -166,21 +167,54 @@ export default class Testsetview extends Component {
     //
   };
   Inserttestcase = async (data) => {
+    console.log(this.state.tempsetdata);
     console.log(data);
+    let timestamp = Date.now();
+
+    let newData = { ...data, timestamp };
     let tid = this.state.testsetid;
+
     console.log(tid);
+
+    if (this.state.tempsetdata === undefined) {
+      console.log("no preblem");
+    } else if (
+      this.state.tempsetdata.testcases.some((item) => item._id === data._id)
+    ) {
+      let answer = window.confirm(
+        "Testcase is Already added do you want to add it again"
+      );
+      if (answer) {
+        try {
+          let Result = await axios.post(
+            "http://localhost:5000/api/testset/inserttestsbyid",
+            [{ id: tid }, { testcaseinfo: newData }]
+          );
+          console.log(Result);
+          // console.log(data.testname);
+          toast.success(`test case "${data.testname}" added successfully`);
+          this.GetAlltestSet(Result.data);
+        } catch (error) {
+          console.log(error);
+        }
+        return;
+      } else {
+        console.log(" not done");
+        return;
+      }
+    }
     if (this.state.testsetid === undefined) {
-      toast.error("Please !!!! set Testset name first");
+      toast.error("Please select testset first");
     } else {
       try {
         let Result = await axios.post(
           "http://localhost:5000/api/testset/inserttestsbyid",
-          [{ id: tid }, { testcaseinfo: data }]
+          [{ id: tid }, { testcaseinfo: newData }]
         );
         console.log(Result);
         // console.log(data.testname);
         toast.success(`test case "${data.testname}" added successfully`);
-        this.GetAlltestSet();
+        this.GetAlltestSet(Result.data);
       } catch (error) {
         console.log(error);
       }
@@ -287,15 +321,28 @@ export default class Testsetview extends Component {
   };
 
   Deletestcase = async (id) => {
+    // console.log(this.state.AlltestsetData);
+    let TSid = this.state.testsetid;
+    const updatedState = this.state.AlltestsetData.map((obj) => {
+      if (obj._id === TSid) {
+        const updatedNestedArray = obj.testcases.filter(
+          (nestedObj) => nestedObj.timestamp !== id
+        );
+        return { ...obj, testcases: updatedNestedArray };
+      }
+      return obj;
+    });
+    this.setState({ AlltestsetData: updatedState });
+    console.log(this.state.AlltestsetData);
     let Result = await axios.post(
       "http://localhost:5000/api/testset/deltestfromid",
-      { data: { testsetId: this.state.testsetid, id: id } }
+      { data: { testsetId: TSid, id: id } }
     );
 
     console.log(Result);
     if (Result.data.modifiedCount === 1) {
       toast.success("test removed successfully");
-      this.refreshPage();
+      // this.refreshPage();
     } else {
       toast.error("Test Case does not exist,Please Refresh");
     }
@@ -386,7 +433,7 @@ export default class Testsetview extends Component {
                                   <button
                                     className="mdi mdi-open-in-new"
                                     style={{
-                                      margin: 5,
+                                      marginBottom: 5,
                                     }}
                                     onClick={() =>
                                       this.Handlechange(valu, val._id)
@@ -544,7 +591,9 @@ export default class Testsetview extends Component {
                                       cursor: "pointer",
                                     }}
                                     onClick={() =>
-                                      this.Deletestcase(this.state.testcase._id)
+                                      this.Deletestcase(
+                                        this.state.testcase.timestamp
+                                      )
                                     }
                                   ></i>
                                 </div>
