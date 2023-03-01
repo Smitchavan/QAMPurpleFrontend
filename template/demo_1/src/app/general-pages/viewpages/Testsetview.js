@@ -103,7 +103,9 @@ export default class Testsetview extends Component {
           toast.error(error.response.data.error);
           this.setState({ isExpired: true });
         });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   GetAlltestSet = async (dataset) => {
@@ -119,6 +121,7 @@ export default class Testsetview extends Component {
         }
       );
       let data = res.data.Result;
+      console.log(data);
       await this.setState({ AlltestsetData: data, tempsetdata: dataset });
       this.setState({ data });
       this.setState({ totalItems: res.data.counter });

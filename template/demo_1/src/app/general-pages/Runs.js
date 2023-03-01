@@ -4,12 +4,43 @@ import { Form } from "react-bootstrap";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
 import { toast, Toaster } from "react-hot-toast";
+import Comporun from "./Comporun";
 export default class Runs extends Component {
   constructor(props) {
     super(props);
-    this.state = { AlltestsetData: [], setModal: false, query: "" };
+    this.state = {
+      AlltestsetData: [],
+      setModal: false,
+      query: "",
+      rundata: [],
+      openCompo: false,
+      specRun: [],
+    };
     this.setState = this.setState.bind(this);
   }
+
+  componentDidMount() {
+    this.loadRuns();
+  }
+
+  loadRuns = async () => {
+    let result = await axios.get("http://localhost:5000/api/testrun/getruns");
+    // console.log(result);
+    this.setState({ rundata: result.data });
+  };
+
+  Deleterun = async (id) => {
+    console.log(id);
+
+    this.setState((prevState) => ({
+      rundata: prevState.rundata.filter((test) => test._id !== id),
+    }));
+    let result = await axios.delete(
+      "http://localhost:5000/api/testrun/deleteruns",
+      { data: { id: id } }
+    );
+    console.log(result);
+  };
   HandleTestsetSearch = async (e) => {
     e.preventDefault();
 
@@ -31,77 +62,124 @@ export default class Runs extends Component {
       toast.error("No testSets Found");
     }
   };
+  Addtorun = async (data) => {
+    let result = await axios.post("http://localhost:5000/api/testrun", [
+      { data: data },
+    ]);
+    this.loadRuns();
+    console.log(result.data);
+  };
   HandleChange = (e) => {
     e.preventDefault();
     this.setState({ query: e.target.value });
   };
   render() {
+    let { rundata } = this.state;
+
     return (
       <div>
         {" "}
         <Toaster />
-        <Form.Group>
-          <div className="input-group">
-            <Form.Control
-              type="text"
-              className="form-control"
-              placeholder="search testcase"
-              aria-label="Recipient's username"
-              aria-describedby="basic-addon2"
-              value={this.state.query}
-              onChange={this.HandleChange}
-            />
-            <div className="input-group-append"></div>
-            <button
-              className="btn btn-sm btn-gradient-primary"
-              type="button"
-              onClick={this.HandleTestsetSearch}
-            >
-              Search
-            </button>
-          </div>
-        </Form.Group>
-        <div className="row">
-          {" "}
-          <Link to="home">
-            <i
-              className="mdi mdi-home-variant"
-              style={{
-                fontSize: "30px",
-                cursor: "pointer",
-                marginLeft: "1180px",
-              }}
-            ></i>
-          </Link>
-          <div className="col-lg-12 grid-margin stretch-card">
-            <div className="card">
-              <div className="card-body">
-                <h4 className="card-title">Runs</h4>
+        {this.state.openCompo ? (
+          <Comporun data={this.state.specRun} />
+        ) : (
+          <div>
+            <Form.Group>
+              <div className="input-group">
+                <Form.Control
+                  type="text"
+                  className="form-control"
+                  placeholder="search testcase"
+                  aria-label="Recipient's username"
+                  aria-describedby="basic-addon2"
+                  value={this.state.query}
+                  onChange={this.HandleChange}
+                />
+                <div className="input-group-append"></div>
+                <button
+                  className="btn btn-sm btn-gradient-primary"
+                  type="button"
+                  onClick={this.HandleTestsetSearch}
+                >
+                  Search
+                </button>
+              </div>
+            </Form.Group>
+            <div className="row">
+              {" "}
+              <Link to="home">
+                <i
+                  className="mdi mdi-home-variant"
+                  style={{
+                    fontSize: "30px",
+                    cursor: "pointer",
+                    marginLeft: "1870px",
+                  }}
+                ></i>
+              </Link>
+              <div className="col-lg-12 grid-margin stretch-card">
+                <div className="card">
+                  <div className="card-body">
+                    <h4 className="card-title">Runs</h4>
 
-                <div className="table-responsive">
-                  <table className="table table-hover">
-                    <thead>
-                      {/* <tr>
+                    <div className="table-responsive">
+                      <table className="table table-hover">
+                        <thead>
+                          {/* <tr>
                         <th>User</th>
                         <th>Product</th>
                         <th>Sale</th>
                         <th>Status</th>
                       </tr> */}
-                    </thead>
-                    <tbody onClick={() => console.log("Hii")}>
-                      <tr>
-                        <td>Jacob</td>
-                      </tr>
-                      <tr>
-                        <td>Jacob</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                        </thead>
+                        {/* {console.log(rundata)} */}
+
+                        {rundata.map((val, index) => (
+                          <tbody
+                            onClick={() =>
+                              this.setState({
+                                openCompo: true,
+                                specRun: val.testRun,
+                              })
+                            }
+                            key={index}
+                          >
+                            <tr key={index}>
+                              <td>
+                                {val.testRun.testsetname}
+                                <i
+                                  id="delete"
+                                  className="mdi mdi-delete-sweep"
+                                  style={{
+                                    marginLeft: "1600px",
+                                    fontSize: "20px",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    this.Deleterun(val._id);
+                                  }}
+                                ></i>
+                              </td>
+                            </tr>
+                          </tbody>
+                        ))}
+                        {console.log(this.state.openCompo)}
+                      </table>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
+        {this.state.openCompo ? (
+          <i
+            className="mdi mdi-step-backward-2"
+            onClick={() => this.setState({ openCompo: false })}
+            style={{ fontSize: "30px", cursor: "pointer" }}
+          ></i>
+        ) : null}
         <Modal
           show={this.state.setModal}
           onHide={() => this.setState({ setModal: false })}
@@ -143,7 +221,7 @@ export default class Runs extends Component {
                                 fontSize: "20px",
                                 cursor: "pointer",
                               }}
-                              //   onClick={}
+                              onClick={() => this.Addtorun(val)}
                             ></i>
                           </td>
                         </tr>
