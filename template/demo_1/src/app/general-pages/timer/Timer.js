@@ -8,6 +8,7 @@ class Timer extends React.Component {
       minutes: 0,
       seconds: 0,
       isPaused: false,
+      currentDate: new Date(),
     };
   }
 
@@ -30,10 +31,31 @@ class Timer extends React.Component {
     clearInterval(this.interval);
   }
 
-  handlePauseClick = () => {
+  handlePauseClick = (e) => {
+    e.preventDefault();
+    let ttime = this.state.currentDate.toLocaleTimeString();
+    if (this.state.isPaused === true) {
+      const data = {
+        time: ttime,
+        type: "isResumed",
+      };
+      this.props.passData(data);
+      this.setState((prevState) => ({
+        isPaused: !prevState.isPaused,
+      }));
+      return;
+    }
+
+    const data = {
+      time: ttime,
+      type: "isPaused",
+    };
+    this.props.passData(data);
     this.setState((prevState) => ({
       isPaused: !prevState.isPaused,
     }));
+
+    // console.log(this.state.isPaused);
   };
 
   handleStopClick = () => {

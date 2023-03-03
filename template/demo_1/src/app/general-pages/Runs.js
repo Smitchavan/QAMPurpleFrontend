@@ -164,7 +164,7 @@ export default class Runs extends Component {
                             </tr>
                           </tbody>
                         ))}
-                        {console.log(this.state.openCompo)}
+                        {/* {console.log(this.state.openCompo)} */}
                       </table>
                     </div>
                   </div>
