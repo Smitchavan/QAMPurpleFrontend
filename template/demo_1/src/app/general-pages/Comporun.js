@@ -18,6 +18,7 @@ export default class Comporun extends Component {
       currentTime: new Date(),
       stepdata: {},
       pauseTime: "",
+      showStopButton: false,
     };
     this.setState = this.setState.bind(this);
   }
@@ -41,7 +42,7 @@ export default class Comporun extends Component {
     if (status === "failed" && description === "") {
       toast.error("plzz enter description if failed");
     } else {
-      console.log("hii", stepdata._id);
+      // console.log("hii", stepdata._id);
       let id = stepdata._id;
       // var newStateArray = this.state.testcasedata
       // newStateArray.push('new value');
@@ -51,14 +52,14 @@ export default class Comporun extends Component {
       let result = {
         status: status,
         description: description,
-        stopTime: ttime,
+        checkTime: ttime,
       };
       console.log(result);
       const updatedStepArr = this.state.testcasedata.stepArr.map((step) => {
         if (step._id === id) {
           // If the ID of the current object matches the ID we're looking for,
           // update the object with the new data
-          console.log(step);
+          // console.log(step);
           return {
             ...step,
             // Add or update the property you want to update here
@@ -86,12 +87,13 @@ export default class Comporun extends Component {
 
       // Update the component state with the new array
 
-      console.log(this.state.testcasedata.stepArr);
+      console.log(this.state.testcasedata);
     }
   };
   passData = async (data) => {
     console.log(data);
     await this.setState({ pauseTime: data });
+
     if (this.state.testcasedata.counttesterTime) {
       await this.state.testcasedata.counttesterTime.push(data);
       console.log(this.state.testcasedata.counttesterTime);
@@ -101,16 +103,18 @@ export default class Comporun extends Component {
     // console.log(tdata);
     let name = tdata.testname;
     const smile = document.getElementById("smile").innerHTML;
-    if (name === smile) return toast.error("please select another testcase");
+    if (name === smile) return;
     // if (name !== smile) return toast.error("please save the existing testcase");
-    let ttime = this.state.currentTime.toLocaleTimeString();
+    this.setState({ showStopButton: true });
 
+    let ttime = this.state.currentTime.toLocaleTimeString();
     let obj = [
       {
         time: ttime,
         type: "isStarted",
       },
     ];
+
     let godata = { ...tdata, counttesterTime: obj };
     await this.setState({ testcasedata: godata });
 
@@ -132,6 +136,22 @@ export default class Comporun extends Component {
     let { testcasedata } = this.state;
     console.log(testcasedata);
     // axios.post("", { data: { testcasedata: testcasedata } });
+  };
+
+  handleStop = async (e) => {
+    e.preventDefault();
+    this.setState({ showStopButton: false });
+    let ttime = this.state.currentTime.toLocaleTimeString();
+
+    const data = {
+      time: ttime,
+      type: "isStopped",
+    };
+    if (this.state.testcasedata.counttesterTime) {
+      await this.state.testcasedata.counttesterTime.push(data);
+      console.log(this.state.testcasedata.counttesterTime);
+      this.setState({ testcasedata: [] });
+    }
   };
   render() {
     let { testcasedata } = this.state;
@@ -165,12 +185,21 @@ export default class Comporun extends Component {
                       className="btn btn-outline-secondary"
                       onClick={() => this.indexTestcase(val)}
                       key={index}
+                      disabled={
+                        this.state.showStopButton
+                          ? testcasedata.testname &&
+                            testcasedata.testname !== val.testname
+                          : false
+                      }
                     >
                       {val.testname}
                     </button>
                   ))}
                 </div>
                 <Timer passData={this.passData} />
+                {this.state.showStopButton && (
+                  <button onClick={this.handleStop}>Stop</button>
+                )}
               </form>
             </div>
           </div>

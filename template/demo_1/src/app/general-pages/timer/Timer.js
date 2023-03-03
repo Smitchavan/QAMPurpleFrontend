@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Modal } from "react-bootstrap";
 class Timer extends React.Component {
   constructor(props) {
     super(props);
@@ -9,6 +9,7 @@ class Timer extends React.Component {
       seconds: 0,
       isPaused: false,
       currentDate: new Date(),
+      setModal: false,
     };
   }
 
@@ -25,6 +26,11 @@ class Timer extends React.Component {
         }
       }
     }, 1000);
+
+    this.intervalID = setInterval(
+      () => this.setState({ currentDate: new Date() }),
+      1000
+    );
   }
 
   componentWillUnmount() {
@@ -40,6 +46,7 @@ class Timer extends React.Component {
         type: "isResumed",
       };
       this.props.passData(data);
+      this.setState({ setModal: false });
       this.setState((prevState) => ({
         isPaused: !prevState.isPaused,
       }));
@@ -51,6 +58,7 @@ class Timer extends React.Component {
       type: "isPaused",
     };
     this.props.passData(data);
+    this.setState({ setModal: true });
     this.setState((prevState) => ({
       isPaused: !prevState.isPaused,
     }));
@@ -71,15 +79,35 @@ class Timer extends React.Component {
 
     return (
       <div>
-        <div>
+        {/* <div>
           <span>{hours < 10 ? `0${hours}` : hours}</span>:
           <span>{minutes < 10 ? `0${minutes}` : minutes}</span>:
           <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
-        </div>
+        </div> */}
+
         <button onClick={this.handlePauseClick}>
           {isPaused ? "Resume" : "Pause"}
         </button>
         {/* <button onClick={this.handleStopClick}>Stop</button> */}
+
+        <Modal
+          show={this.state.setModal}
+          // onHide={() => this.setState({ setModal: false })}
+        >
+          <button onClick={this.handlePauseClick}>
+            {isPaused ? "Resume" : "Pause"}
+          </button>
+          {/* <Modal.Header closeButton>
+            <Modal.Title>Test Page</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body> </Modal.Body>
+          <Modal.Footer>
+            <button onClick={() => this.setState({ setModal: false })}>
+              Close
+            </button>
+          </Modal.Footer> */}
+        </Modal>
       </div>
     );
   }
