@@ -1,4 +1,4 @@
-// import axios from "axios";
+import axios from "axios";
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
@@ -84,12 +84,24 @@ export default class Comporun extends Component {
         });
         toast.success("data updated");
       }
-
+      this.updateSteps();
       // Update the component state with the new array
 
       console.log(this.state.testcasedata);
     }
   };
+
+  updateSteps = async () => {
+    let testdata = this.state.testcasedata;
+
+    let result = await axios.post(
+      "http://localhost:5000/api/testrun/updatesteps",
+      { data: testdata }
+    );
+    console.log(result.data);
+    // this.props.loadruns();
+  };
+
   passData = async (data) => {
     console.log(data);
     await this.setState({ pauseTime: data });
@@ -150,6 +162,7 @@ export default class Comporun extends Component {
     if (this.state.testcasedata.counttesterTime) {
       await this.state.testcasedata.counttesterTime.push(data);
       console.log(this.state.testcasedata.counttesterTime);
+      this.updateSteps();
       this.setState({ testcasedata: [] });
     }
   };
@@ -166,6 +179,7 @@ export default class Comporun extends Component {
               className="card-body"
               style={{ display: "flex", justifyContent: "space-between" }}
             >
+              {/* {console.log(this.state.data)} */}
               <div>{this.state.data.testsetname}</div>
               <div>{this.state.currentDate.toLocaleDateString()}</div>
             </div>

@@ -81,7 +81,10 @@ export default class Runs extends Component {
         {" "}
         <Toaster />
         {this.state.openCompo ? (
-          <Comporun data={this.state.specRun} />
+          <Comporun
+            data={this.state.specRun}
+            // loadruns={() => this.loadRuns()}
+          />
         ) : (
           <div>
             <Form.Group>
@@ -142,7 +145,6 @@ export default class Runs extends Component {
                                 specRun: val.testRun,
                               })
                             }
-                            key={index}
                           >
                             <tr key={index}>
                               <td>
@@ -164,7 +166,7 @@ export default class Runs extends Component {
                             </tr>
                           </tbody>
                         ))}
-                        {/* {console.log(this.state.openCompo)} */}
+                        {console.log(this.state.openCompo)}
                       </table>
                     </div>
                   </div>
