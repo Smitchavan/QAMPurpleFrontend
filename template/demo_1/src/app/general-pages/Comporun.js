@@ -222,6 +222,7 @@ export default class Comporun extends Component {
       await this.state.testcasedata.counttesterTime.push(data);
       this.updateData();
       this.updateApi();
+      this.setState({ testcasedata: [] });
       // console.log(this.state.testcasedata.counttesterTime);
       // this.updateSteps();
       // this.setState({ testcasedata: [] });
