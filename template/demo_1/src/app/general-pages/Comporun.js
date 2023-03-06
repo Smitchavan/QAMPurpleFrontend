@@ -24,12 +24,14 @@ export default class Comporun extends Component {
     this.setState = this.setState.bind(this);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // console.log(this.props.data);
     // const { seconds, minutes, hours } = useTimer({
     //   expiryTimestamp: Date.now() + 60000,
     // });
-
+    let dataL = { ...this.state.data, runStarttime: moment().format("LTS") };
+    await this.setState({ data: dataL });
+    console.log(this.state.data);
     this.intervalID = setInterval(
       () =>
         this.setState({
