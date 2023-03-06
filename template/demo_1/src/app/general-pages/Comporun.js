@@ -16,14 +16,12 @@ export default class Comporun extends Component {
       status: "",
       description: "",
       currentDate: "",
-      currentTime: new Date(),
+      currentTime: "",
       stepdata: {},
       pauseTime: "",
       showStopButton: false,
     };
     this.setState = this.setState.bind(this);
-
-    console.log("kehpa", this.props.data);
   }
 
   componentDidMount() {
@@ -45,6 +43,17 @@ export default class Comporun extends Component {
     // Clear the interval before unmounting the component
     clearInterval(this.intervalID);
   }
+  loadRunByid = async () => {
+    let result = await axios.get(
+      "http://localhost:5000/api/testrun/getrunbyid",
+      { params: { runid: this.props.runid } }
+    );
+    // console.log("hii", result.data.testRun);
+    await this.setState({ data: result.data.testRun });
+
+    console.log("HIII", this.state.data);
+  };
+
   Msubmit = async () => {
     let { status, description, stepdata } = this.state;
     // console.log(status, "h", description);
@@ -84,25 +93,44 @@ export default class Comporun extends Component {
           setModal: false,
         });
         toast.success("data updated");
+        this.updateData();
+        this.updateApi();
       }
-      this.updateSteps();
+
+      // console.log(this.state.data);
+
+      // console.log(this.state.testcasedata);
+      // this.updateSteps();
       // Update the component state with the new array
 
       // console.log(this.state.testcasedata);
     }
   };
 
-  updateSteps = async () => {
-    console.log("comporuns", this.props.data.testcases);
+  // updateSteps = async () => {
+  //   console.log("comporuns", this.props.data.testcases);
+  //   // this.setState({ data: this.props.data });
+  //   let testdata = { data: this.state.testcasedata, runid: this.props.runid };
+
+  //   let result = await axios.post(
+  //     "http://localhost:5000/api/testrun/updatesteps",
+  //     { data: testdata }
+  //   );
+  //   console.log(result.data);
+  //   this.props.loadruns();
+  // };
+  updateApi = async () => {
+    // console.log("comporuns", this.props.data.testcases);
     // this.setState({ data: this.props.data });
-    let testdata = { data: this.state.testcasedata, runid: this.props.runid };
+    let testdata = { data: this.state.data, runid: this.props.runid };
 
     let result = await axios.post(
       "http://localhost:5000/api/testrun/updatesteps",
       { data: testdata }
     );
     console.log(result.data);
-    this.props.loadruns();
+    this.loadRunByid();
+    // this.props.loadruns();
   };
 
   passData = async (data) => {
@@ -112,6 +140,8 @@ export default class Comporun extends Component {
     if (this.state.testcasedata.counttesterTime) {
       await this.state.testcasedata.counttesterTime.push(data);
       console.log(this.state.testcasedata.counttesterTime);
+      this.updateData();
+      this.updateApi();
     }
   };
   indexTestcase = async (tdata) => {
@@ -147,11 +177,36 @@ export default class Comporun extends Component {
       [name]: value,
     });
   };
+
+  updateData = async () => {
+    let { testcasedata } = this.state;
+
+    const updatedStepArr = this.state.data.testcases.map((icase) => {
+      if (icase._id === testcasedata._id) {
+        return {
+          ...icase,
+          ...testcasedata,
+        };
+      } else {
+        return icase;
+      }
+    });
+
+    if (this.state.data.testcases !== updatedStepArr) {
+      await this.setState({
+        data: {
+          ...this.state.data,
+          testcases: updatedStepArr,
+        },
+      });
+      // toast.success("data updated");
+    }
+    console.log(this.state.data);
+  };
   SubmitTest = async (e) => {
     e.preventDefault();
-    let { testcasedata } = this.state;
-    console.log(testcasedata);
-    // axios.post("", { data: { testcasedata: testcasedata } });
+    this.updateApi();
+    this.updateApi();
   };
 
   handleStop = async (e) => {
@@ -165,9 +220,11 @@ export default class Comporun extends Component {
     };
     if (this.state.testcasedata.counttesterTime) {
       await this.state.testcasedata.counttesterTime.push(data);
+      this.updateData();
+      this.updateApi();
       // console.log(this.state.testcasedata.counttesterTime);
-      this.updateSteps();
-      this.setState({ testcasedata: [] });
+      // this.updateSteps();
+      // this.setState({ testcasedata: [] });
     }
   };
   render() {

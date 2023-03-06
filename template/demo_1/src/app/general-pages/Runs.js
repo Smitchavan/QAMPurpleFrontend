@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import axios from "axios";
-import moment from "moment";
+// import moment from "moment";
 import { Modal } from "react-bootstrap";
 import { toast, Toaster } from "react-hot-toast";
 import Comporun from "./Comporun";
@@ -31,16 +31,16 @@ export default class Runs extends Component {
     this.setState({ rundata: result.data });
     // this.loadRunByid();
   };
-  loadRunByid = async () => {
-    let result = await axios.get(
-      "http://localhost:5000/api/testrun/getrunbyid",
-      { params: { runid: this.state.runId } }
-    );
-    // console.log("hii", result.data.testRun);
-    await this.setState({ specRun: result.data.testRun });
+  // loadRunByid = async () => {
+  //   let result = await axios.get(
+  //     "http://localhost:5000/api/testrun/getrunbyid",
+  //     { params: { runid: this.state.runId } }
+  //   );
+  //   // console.log("hii", result.data.testRun);
+  //   await this.setState({ specRun: result.data.testRun });
 
-    // console.log("HIII", this.state.specRun);
-  };
+  //   // console.log("HIII", this.state.specRun);
+  // };
 
   Deleterun = async (id) => {
     console.log(id);
@@ -91,17 +91,11 @@ export default class Runs extends Component {
 
     return (
       <div>
-        {console.log("run", this.state.specRun.testcases)}
+        {/* {console.log("run", this.state.specRun.testcases)} */}
         <Toaster />
         {this.state.openCompo ? (
           <div>
-            <Comporun
-              data={this.state.specRun}
-              runid={this.state.runId}
-              loadruns={() => this.loadRunByid()}
-            />
-
-            {console.log("neededrun", this.state.specRun.testcases)}
+            <Comporun data={this.state.specRun} runid={this.state.runId} />
           </div>
         ) : (
           <div>
@@ -198,7 +192,12 @@ export default class Runs extends Component {
           <i
             className="mdi mdi-step-backward-2"
             onClick={() => this.setState({ openCompo: false })}
-            style={{ fontSize: "30px", cursor: "pointer" }}
+            style={{
+              fontSize: "30px",
+              cursor: "pointer",
+              position: "fixed",
+              top: "94%",
+            }}
           ></i>
         ) : null}
         <Modal

@@ -15,19 +15,6 @@ class Timer extends React.Component {
   }
 
   componentDidMount() {
-    this.interval = setInterval(() => {
-      if (!this.state.isPaused) {
-        const { hours, minutes, seconds } = this.state;
-        if (seconds < 59) {
-          this.setState({ seconds: seconds + 1 });
-        } else if (minutes < 59) {
-          this.setState({ minutes: minutes + 1, seconds: 0 });
-        } else {
-          this.setState({ hours: hours + 1, minutes: 0, seconds: 0 });
-        }
-      }
-    }, 1000);
-
     this.intervalID = setInterval(
       () => this.setState({ currentDate: moment().format("LTS") }),
       1000
@@ -67,16 +54,8 @@ class Timer extends React.Component {
     // console.log(this.state.isPaused);
   };
 
-  handleStopClick = () => {
-    this.setState({
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-      isPaused: true,
-    });
-  };
   render() {
-    const { hours, minutes, seconds, isPaused } = this.state;
+    let { isPaused } = this.state;
 
     return (
       <div>
