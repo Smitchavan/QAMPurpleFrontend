@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal } from "react-bootstrap";
+import moment from "moment";
 class Timer extends React.Component {
   constructor(props) {
     super(props);
@@ -8,7 +9,7 @@ class Timer extends React.Component {
       minutes: 0,
       seconds: 0,
       isPaused: false,
-      currentDate: new Date(),
+      currentDate: "",
       setModal: false,
     };
   }
@@ -28,7 +29,7 @@ class Timer extends React.Component {
     }, 1000);
 
     this.intervalID = setInterval(
-      () => this.setState({ currentDate: new Date() }),
+      () => this.setState({ currentDate: moment().format("LTS") }),
       1000
     );
   }
@@ -39,7 +40,7 @@ class Timer extends React.Component {
 
   handlePauseClick = (e) => {
     e.preventDefault();
-    let ttime = this.state.currentDate.toLocaleTimeString();
+    let ttime = this.state.currentDate;
     if (this.state.isPaused === true) {
       const data = {
         time: ttime,
@@ -84,10 +85,19 @@ class Timer extends React.Component {
           <span>{minutes < 10 ? `0${minutes}` : minutes}</span>:
           <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
         </div> */}
-
-        <button onClick={this.handlePauseClick}>
-          {isPaused ? "Resume" : "Pause"}
-        </button>
+        {/* <i className="mdi mdi-pause-circle-outline"></i> */}
+        <i
+          className={` ${
+            isPaused ? "mdi mdi-play" : "mdi mdi-pause-circle-outline"
+          }`}
+          style={{
+            fontSize: "30px",
+            cursor: "pointer",
+          }}
+          onClick={this.handlePauseClick}
+        >
+          {/* {isPaused ? "Resume" : "Pause"} */}
+        </i>
         {/* <button onClick={this.handleStopClick}>Stop</button> */}
 
         <Modal

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import { Modal } from "react-bootstrap";
+import moment from "moment";
 import { toast, Toaster } from "react-hot-toast";
 // import { Dropdown } from "react-bootstrap";
 import Timer from "./timer/Timer";
@@ -14,21 +15,29 @@ export default class Comporun extends Component {
       setModal: false,
       status: "",
       description: "",
-      currentDate: new Date(),
+      currentDate: "",
       currentTime: new Date(),
       stepdata: {},
       pauseTime: "",
       showStopButton: false,
     };
     this.setState = this.setState.bind(this);
+
+    console.log("kehpa", this.props.data);
   }
+
   componentDidMount() {
     // console.log(this.props.data);
     // const { seconds, minutes, hours } = useTimer({
     //   expiryTimestamp: Date.now() + 60000,
     // });
+
     this.intervalID = setInterval(
-      () => this.setState({ currentTime: new Date(), currentDate: new Date() }),
+      () =>
+        this.setState({
+          currentTime: moment().format("LTS"),
+          currentDate: moment().format("MMMM Do YYYY, h:mm:ss a"),
+        }),
       1000
     );
   }
@@ -42,32 +51,24 @@ export default class Comporun extends Component {
     if (status === "failed" && description === "") {
       toast.error("plzz enter description if failed");
     } else {
-      // console.log("hii", stepdata._id);
       let id = stepdata._id;
-      // var newStateArray = this.state.testcasedata
-      // newStateArray.push('new value');
-      // this.setState(myArray: newStateArray);
-      let ttime = this.state.currentTime.toLocaleTimeString();
-      // await this.setState({ currentTime: ttime });
+
+      let ttime = this.state.currentTime;
+
       let result = {
         status: status,
         description: description,
         checkTime: ttime,
       };
-      console.log(result);
+      // console.log(result);
       const updatedStepArr = this.state.testcasedata.stepArr.map((step) => {
         if (step._id === id) {
-          // If the ID of the current object matches the ID we're looking for,
-          // update the object with the new data
-          // console.log(step);
           return {
             ...step,
-            // Add or update the property you want to update here
+
             result: result,
           };
         } else {
-          // If the ID of the current object doesn't match the ID we're looking for,
-          // return the current object unchanged
           return step;
         }
       });
@@ -87,19 +88,21 @@ export default class Comporun extends Component {
       this.updateSteps();
       // Update the component state with the new array
 
-      console.log(this.state.testcasedata);
+      // console.log(this.state.testcasedata);
     }
   };
 
   updateSteps = async () => {
-    let testdata = this.state.testcasedata;
+    console.log("comporuns", this.props.data.testcases);
+    // this.setState({ data: this.props.data });
+    let testdata = { data: this.state.testcasedata, runid: this.props.runid };
 
     let result = await axios.post(
       "http://localhost:5000/api/testrun/updatesteps",
       { data: testdata }
     );
     console.log(result.data);
-    // this.props.loadruns();
+    this.props.loadruns();
   };
 
   passData = async (data) => {
@@ -119,7 +122,8 @@ export default class Comporun extends Component {
     // if (name !== smile) return toast.error("please save the existing testcase");
     this.setState({ showStopButton: true });
 
-    let ttime = this.state.currentTime.toLocaleTimeString();
+    let ttime = this.state.currentTime;
+
     let obj = [
       {
         time: ttime,
@@ -153,7 +157,7 @@ export default class Comporun extends Component {
   handleStop = async (e) => {
     e.preventDefault();
     this.setState({ showStopButton: false });
-    let ttime = this.state.currentTime.toLocaleTimeString();
+    let ttime = this.state.currentTime;
 
     const data = {
       time: ttime,
@@ -161,7 +165,7 @@ export default class Comporun extends Component {
     };
     if (this.state.testcasedata.counttesterTime) {
       await this.state.testcasedata.counttesterTime.push(data);
-      console.log(this.state.testcasedata.counttesterTime);
+      // console.log(this.state.testcasedata.counttesterTime);
       this.updateSteps();
       this.setState({ testcasedata: [] });
     }
@@ -181,7 +185,7 @@ export default class Comporun extends Component {
             >
               {/* {console.log(this.state.data)} */}
               <div>{this.state.data.testsetname}</div>
-              <div>{this.state.currentDate.toLocaleDateString()}</div>
+              <div>{this.state.currentDate}</div>
             </div>
           </div>
         </div>
@@ -192,11 +196,12 @@ export default class Comporun extends Component {
                 className="forms-sample"
                 style={{ display: "flex", justifyContent: "space-between" }}
               >
+                {/* <button type="button" className="btn btn-outline-dark btn-fw">Dark</button> */}
                 <div>
                   {this.state.data.testcases.map((val, index) => (
                     <button
                       type="button"
-                      className="btn btn-outline-secondary"
+                      className="btn btn-outline-dark btn-fw"
                       onClick={() => this.indexTestcase(val)}
                       key={index}
                       disabled={
@@ -210,10 +215,20 @@ export default class Comporun extends Component {
                     </button>
                   ))}
                 </div>
-                <Timer passData={this.passData} />
-                {this.state.showStopButton && (
-                  <button onClick={this.handleStop}>Stop</button>
-                )}
+                <div style={{ display: "flex" }}>
+                  <Timer passData={this.passData} />
+                  {this.state.showStopButton && (
+                    <i
+                      className="mdi mdi-stop"
+                      style={{
+                        fontSize: "30px",
+                        cursor: "pointer",
+                        marginLeft: "20px",
+                      }}
+                      onClick={this.handleStop}
+                    ></i>
+                  )}
+                </div>
               </form>
             </div>
           </div>

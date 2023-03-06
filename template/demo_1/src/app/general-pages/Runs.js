@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Form } from "react-bootstrap";
 import axios from "axios";
+import moment from "moment";
 import { Modal } from "react-bootstrap";
 import { toast, Toaster } from "react-hot-toast";
 import Comporun from "./Comporun";
@@ -15,6 +16,7 @@ export default class Runs extends Component {
       rundata: [],
       openCompo: false,
       specRun: [],
+      runId: "",
     };
     this.setState = this.setState.bind(this);
   }
@@ -27,6 +29,17 @@ export default class Runs extends Component {
     let result = await axios.get("http://localhost:5000/api/testrun/getruns");
     // console.log(result);
     this.setState({ rundata: result.data });
+    // this.loadRunByid();
+  };
+  loadRunByid = async () => {
+    let result = await axios.get(
+      "http://localhost:5000/api/testrun/getrunbyid",
+      { params: { runid: this.state.runId } }
+    );
+    // console.log("hii", result.data.testRun);
+    await this.setState({ specRun: result.data.testRun });
+
+    // console.log("HIII", this.state.specRun);
   };
 
   Deleterun = async (id) => {
@@ -78,13 +91,18 @@ export default class Runs extends Component {
 
     return (
       <div>
-        {" "}
+        {console.log("run", this.state.specRun.testcases)}
         <Toaster />
         {this.state.openCompo ? (
-          <Comporun
-            data={this.state.specRun}
-            // loadruns={() => this.loadRuns()}
-          />
+          <div>
+            <Comporun
+              data={this.state.specRun}
+              runid={this.state.runId}
+              loadruns={() => this.loadRunByid()}
+            />
+
+            {console.log("neededrun", this.state.specRun.testcases)}
+          </div>
         ) : (
           <div>
             <Form.Group>
@@ -143,6 +161,7 @@ export default class Runs extends Component {
                               this.setState({
                                 openCompo: true,
                                 specRun: val.testRun,
+                                runId: val._id,
                               })
                             }
                           >
