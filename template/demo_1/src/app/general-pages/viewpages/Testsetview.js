@@ -172,9 +172,9 @@ export default class Testsetview extends Component {
   Inserttestcase = async (data) => {
     console.log(this.state.tempsetdata);
     console.log(data);
-    let timestamp = Date.now();
+    let Timeid = Date.now();
 
-    let newData = { ...data, timestamp };
+    let newData = { ...data, Timeid };
     let tid = this.state.testsetid;
 
     console.log(tid);
@@ -329,7 +329,7 @@ export default class Testsetview extends Component {
     const updatedState = this.state.AlltestsetData.map((obj) => {
       if (obj._id === TSid) {
         const updatedNestedArray = obj.testcases.filter(
-          (nestedObj) => nestedObj.timestamp !== id
+          (nestedObj) => nestedObj.Timeid !== id
         );
         return { ...obj, testcases: updatedNestedArray };
       }
@@ -595,7 +595,7 @@ export default class Testsetview extends Component {
                                     }}
                                     onClick={() =>
                                       this.Deletestcase(
-                                        this.state.testcase.timestamp
+                                        this.state.testcase.Timeid
                                       )
                                     }
                                   ></i>

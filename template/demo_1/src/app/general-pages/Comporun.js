@@ -32,8 +32,11 @@ export default class Comporun extends Component {
     let dataL = {
       ...this.state.data,
       runStarttime: moment().format("MMMM Do YYYY, h:mm:ss a"),
+      finalDuration: 0,
+      finalStatus: "",
     };
     await this.setState({ data: dataL });
+    this.updateApi();
 
     // console.log(this.state.data);
     this.intervalID = setInterval(
@@ -200,7 +203,7 @@ export default class Comporun extends Component {
       },
     ];
 
-    let godata = { ...tdata, counttesterTime: obj };
+    let godata = { ...tdata, counttesterTime: obj, duration: 0 };
     await this.setState({ testcasedata: godata });
 
     // ----------------------------------------------
@@ -246,6 +249,7 @@ export default class Comporun extends Component {
     e.preventDefault();
     this.updateApi();
     this.updateApi();
+    toast.success("Testcase Submitted Successfully");
   };
 
   handleStop = async (e) => {
@@ -363,7 +367,6 @@ export default class Comporun extends Component {
                   >
                     Submit
                   </button>
-                  <button className="btn btn-light">Cancel</button>
                 </form>
                 {/* <Form.Group className="row">
                   <form className="forms-sample">

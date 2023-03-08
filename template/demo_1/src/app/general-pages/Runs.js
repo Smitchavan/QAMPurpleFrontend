@@ -77,6 +77,9 @@ export default class Runs extends Component {
     }
   };
   Addtorun = async (data) => {
+    delete data._id;
+    console.log(data);
+
     let result = await axios.post("http://localhost:5000/api/testrun", [
       { data: data },
     ]);
