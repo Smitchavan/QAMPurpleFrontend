@@ -29,20 +29,57 @@ export default class Comporun extends Component {
     // const { seconds, minutes, hours } = useTimer({
     //   expiryTimestamp: Date.now() + 60000,
     // });
-    let dataL = { ...this.state.data, runStarttime: moment().format("LTS") };
+    let dataL = {
+      ...this.state.data,
+      runStarttime: moment().format("MMMM Do YYYY, h:mm:ss a"),
+    };
     await this.setState({ data: dataL });
-    console.log(this.state.data);
+
+    // console.log(this.state.data);
     this.intervalID = setInterval(
       () =>
         this.setState({
-          currentTime: moment().format("LTS"),
+          currentTime: moment().format("MMMM Do YYYY, h:mm:ss a"),
           currentDate: moment().format("MMMM Do YYYY, h:mm:ss a"),
         }),
       1000
     );
   }
+
+  runEndtime = async () => {
+    // this.updateApi();
+    let dataL = {
+      ...this.state.data,
+      runEndtime: moment().format("MMMM Do YYYY, h:mm:ss a"),
+    };
+    await this.setState({ data: dataL }, () => {
+      console.log("hiii stateend", this.state.data);
+    });
+
+    this.updateApi();
+    // console.log(this.state.data);
+  };
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.props.shouldUpdateTime && !prevProps.shouldUpdateTime) {
+  //     this.runEndtime();
+  //   }
+  // }
   componentWillUnmount() {
     // Clear the interval before unmounting the component
+    // this.runEndtime(this.state.data);
+
+    let dataL = {
+      ...this.state.data,
+      runEndtime: moment().format("MMMM Do YYYY, h:mm:ss a"),
+    };
+    // await this.setState({ data: dataL }, () => {
+    //   console.log("hiii stateend", this.state.data);
+    // });
+    this.state.data = dataL;
+    // console.log(this.state.data);
+    this.updateApi();
+
     clearInterval(this.intervalID);
   }
   loadRunByid = async () => {
@@ -136,7 +173,7 @@ export default class Comporun extends Component {
   };
 
   passData = async (data) => {
-    console.log(data);
+    // console.log(data);
     await this.setState({ pauseTime: data });
 
     if (this.state.testcasedata.counttesterTime) {
@@ -276,7 +313,10 @@ export default class Comporun extends Component {
                   ))}
                 </div>
                 <div style={{ display: "flex" }}>
-                  <Timer passData={this.passData} />
+                  <Timer
+                    passData={this.passData}
+                    button={this.state.showStopButton}
+                  />
                   {this.state.showStopButton && (
                     <i
                       className="mdi mdi-stop"

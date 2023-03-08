@@ -12,6 +12,7 @@ class Timer extends React.Component {
       currentDate: "",
       setModal: false,
     };
+    console.log();
   }
 
   componentDidMount() {
@@ -65,18 +66,22 @@ class Timer extends React.Component {
           <span>{seconds < 10 ? `0${seconds}` : seconds}</span>
         </div> */}
         {/* <i className="mdi mdi-pause-circle-outline"></i> */}
-        <i
-          className={` ${
-            isPaused ? "mdi mdi-play" : "mdi mdi-pause-circle-outline"
-          }`}
-          style={{
-            fontSize: "30px",
-            cursor: "pointer",
-          }}
-          onClick={this.handlePauseClick}
-        >
-          {/* {isPaused ? "Resume" : "Pause"} */}
-        </i>
+
+        {this.props.button ? (
+          <i
+            className={` ${
+              isPaused ? "mdi mdi-play" : "mdi mdi-pause-circle-outline"
+            }`}
+            style={{
+              fontSize: "30px",
+              cursor: "pointer",
+            }}
+            onClick={this.handlePauseClick}
+          >
+            {/* {isPaused ? "Resume" : "Pause"} */}
+          </i>
+        ) : null}
+
         {/* <button onClick={this.handleStopClick}>Stop</button> */}
 
         <Modal

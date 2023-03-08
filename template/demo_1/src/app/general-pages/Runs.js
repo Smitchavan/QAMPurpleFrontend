@@ -17,6 +17,7 @@ export default class Runs extends Component {
       openCompo: false,
       specRun: [],
       runId: "",
+      shouldUpdateTime: false,
     };
     this.setState = this.setState.bind(this);
   }
@@ -86,6 +87,12 @@ export default class Runs extends Component {
     e.preventDefault();
     this.setState({ query: e.target.value });
   };
+  handleClick = async () => {
+    // await this.setState({ shouldUpdateTime: true });
+
+    this.setState({ openCompo: false });
+  };
+
   render() {
     let { rundata } = this.state;
 
@@ -95,7 +102,11 @@ export default class Runs extends Component {
         <Toaster />
         {this.state.openCompo ? (
           <div>
-            <Comporun data={this.state.specRun} runid={this.state.runId} />
+            <Comporun
+              data={this.state.specRun}
+              runid={this.state.runId}
+              shouldUpdateTime={this.state.shouldUpdateTime}
+            />
           </div>
         ) : (
           <div>
@@ -179,7 +190,7 @@ export default class Runs extends Component {
                             </tr>
                           </tbody>
                         ))}
-                        {console.log(this.state.openCompo)}
+                        {/* {console.log(this.state.openCompo)} */}
                       </table>
                     </div>
                   </div>
@@ -191,7 +202,7 @@ export default class Runs extends Component {
         {this.state.openCompo ? (
           <i
             className="mdi mdi-step-backward-2"
-            onClick={() => this.setState({ openCompo: false })}
+            onClick={this.handleClick}
             style={{
               fontSize: "30px",
               cursor: "pointer",

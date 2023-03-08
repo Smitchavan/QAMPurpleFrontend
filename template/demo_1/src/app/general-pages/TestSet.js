@@ -75,9 +75,9 @@ export default class TestSet extends Component {
   AddtoTestset = async (data) => {
     // console.log(this.state.AlltestsetData);
     // console.log(data);
-    let timestamp = Date.now();
+    let Timeid = Date.now();
 
-    let newData = { ...data, timestamp };
+    let newData = { ...data, Timeid };
     // console.log(newData);
     let testsetid = this.state.testsetdata._id;
 
