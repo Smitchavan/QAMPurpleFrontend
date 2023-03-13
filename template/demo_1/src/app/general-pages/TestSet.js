@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Form } from "react-bootstrap";
 import axios from "axios";
-import { Redirect } from "react-router-dom";
+import { Redirect, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import Pagination from "../pagination/Pagination";
 export default class TestSet extends Component {
@@ -224,6 +224,14 @@ export default class TestSet extends Component {
       toast.error("please accept the condition");
     }
   };
+
+  handleCancel = (e) => {
+    e.preventDefault();
+    console.log("hii");
+    this.setState({
+      testsetForm: { testsetname: "", assigntoproject: "" },
+    });
+  };
   render() {
     return (
       <div>
@@ -316,16 +324,12 @@ export default class TestSet extends Component {
                   >
                     Submit
                   </button>
-                  <button
+                  {/* <button
                     className="btn btn-light"
-                    onClick={() => {
-                      this.setState({
-                        testsetForm: { testsetname: "", assigntoproject: "" },
-                      });
-                    }}
+                    onClick={() => this.handleCancel}
                   >
                     Cancel
-                  </button>
+                  </button> */}
                 </form>
               </div>{" "}
             </div>
@@ -446,6 +450,17 @@ export default class TestSet extends Component {
             </div>
           </div>
         </div>
+        <Link to="home">
+          <i
+            className="mdi mdi-step-backward-2"
+            style={{
+              fontSize: "30px",
+              cursor: "pointer",
+              position: "fixed",
+              top: "90%",
+            }}
+          ></i>
+        </Link>
       </div>
     );
   }

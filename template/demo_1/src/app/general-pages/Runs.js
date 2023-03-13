@@ -28,7 +28,7 @@ export default class Runs extends Component {
 
   loadRuns = async () => {
     let result = await axios.get("http://localhost:5000/api/testrun/getruns");
-    // console.log(result);
+    console.log(result.data);
     this.setState({ rundata: result.data });
     // this.loadRunByid();
   };
@@ -136,16 +136,6 @@ export default class Runs extends Component {
             </Form.Group>
             <div className="row">
               {" "}
-              <Link to="home">
-                <i
-                  className="mdi mdi-home-variant"
-                  style={{
-                    fontSize: "30px",
-                    cursor: "pointer",
-                    marginLeft: "1870px",
-                  }}
-                ></i>
-              </Link>
               <div className="col-lg-12 grid-margin stretch-card">
                 <div className="card">
                   <div className="card-body">
@@ -168,14 +158,14 @@ export default class Runs extends Component {
                             onClick={() =>
                               this.setState({
                                 openCompo: true,
-                                specRun: val.testRun,
+                                specRun: val,
                                 runId: val._id,
                               })
                             }
                           >
                             <tr key={index}>
                               <td>
-                                {val.testRun.testsetname}
+                                {val.testsetname}
                                 <i
                                   id="delete"
                                   className="mdi mdi-delete-sweep"
@@ -200,6 +190,17 @@ export default class Runs extends Component {
                 </div>
               </div>
             </div>
+            <Link to="home">
+              <i
+                className="mdi mdi-step-backward-2"
+                style={{
+                  fontSize: "30px",
+                  cursor: "pointer",
+                  position: "fixed",
+                  top: "90%",
+                }}
+              ></i>
+            </Link>
           </div>
         )}
         {this.state.openCompo ? (

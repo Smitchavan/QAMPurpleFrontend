@@ -91,7 +91,7 @@ export default class Comporun extends Component {
       { params: { runid: this.props.runid } }
     );
     // console.log("hii", result.data.testRun);
-    await this.setState({ data: result.data.testRun });
+    await this.setState({ data: result.data });
 
     console.log("HIII", this.state.data);
   };
@@ -164,7 +164,7 @@ export default class Comporun extends Component {
   updateApi = async () => {
     // console.log("comporuns", this.props.data.testcases);
     // this.setState({ data: this.props.data });
-    let testdata = { data: this.state.data, runid: this.props.runid };
+    let testdata = { data: this.state.data };
 
     let result = await axios.post(
       "http://localhost:5000/api/testrun/updatesteps",
@@ -299,6 +299,7 @@ export default class Comporun extends Component {
               >
                 {/* <button type="button" className="btn btn-outline-dark btn-fw">Dark</button> */}
                 <div>
+                  {/* {console.log(this.state.data)} */}
                   {this.state.data.testcases.map((val, index) => (
                     <button
                       type="button"
